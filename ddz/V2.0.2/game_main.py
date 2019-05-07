@@ -13,6 +13,7 @@ from env import Env
 import numpy as np
 from action_type_enum import ActionTypeEnum
 import config
+from hand_card_utils import HandCardUtils
 
 """
 游戏主体类
@@ -191,6 +192,9 @@ class GameMain(object):
         n_input = config.N_INPUT
         hcs = curr_player.hand_card_struct
         hand_card_status = hcs.hand_card_status
+        # 判断是否是一手牌
+        #if HandCardUtils.is_one_hand(hand_card_status):
+
         put_card_status = self._put_card_status
         obser = env.specify_env(hand_card_status, put_card_status)
         #print('curr obser:{}'.format(obser))
