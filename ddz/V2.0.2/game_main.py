@@ -193,7 +193,7 @@ class GameMain(object):
         hand_card_status = hcs.hand_card_status
         put_card_status = self._put_card_status
         obser = env.specify_env(hand_card_status, put_card_status)
-        print('curr obser:{}'.format(obser))
+        #print('curr obser:{}'.format(obser))
         for action in range(n_action):
             act = [0] * n_action
             act[action] = 1
@@ -215,7 +215,6 @@ class GameMain(object):
         accpet_action = None
         for action in order_action:
             obser, _, done, info = env.step(action, last_primary_item, last_action)
-            print('other obser: {}'.format(obser))
             error = info['error']
             if not error:
                 if done:
@@ -241,8 +240,8 @@ class GameMain(object):
         env = Env()
         k = 0
         with tf.Session() as sess:
-            saver = tf.train.import_meta_graph('./model/deep_q.ckpt.meta')
-            model_file=tf.train.latest_checkpoint('./model/')
+            saver = tf.train.import_meta_graph(config.MODEL_META_PATH)
+            model_file=tf.train.latest_checkpoint(config.MODEL_PATH)
             saver.restore(sess,model_file)
             net_out = tf.get_collection('net_out')
             lcts = None

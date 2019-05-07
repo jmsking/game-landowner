@@ -968,7 +968,6 @@ class Env(object):
         # 不出
         elif action == ActionTypeEnum.ACTION_NO_PUT.value:
             if ENV_DEBUG:
-                done = True
                 print('Not put card')
 
         #if self._is_done():
@@ -988,7 +987,6 @@ class Env(object):
 
 if __name__ == '__main__':
     env = Env()
-    # 3,3,4,4,5,5,6,7,8,9,10,11,12,12,13,13,13
     obser = env.reset()
     print(obser)
     print(env.hand_card_status)

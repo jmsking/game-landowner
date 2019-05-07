@@ -17,8 +17,9 @@ class AgentCore(object):
     Args:
         discount_rate: 衰减因子
     """
-    def __init__(self, n_input, n_output, n_hidden=20, discount_rate=0.99, learning_rate=0.001, n_epoch=200,
-                batch_size=100, min_grad = 0.1, max_grad = 1, n_action = 27, window = 5):
+    def __init__(self, n_input, n_output, n_hidden=20, discount_rate=0.99, learning_rate=0.001, n_epoch=1000,
+                batch_size=100, min_grad = 0.1, max_grad = 1, n_action = 27, window = 5,
+                max_sample_pool = 100000, tau = 0.001):
         self.n_input = n_input
         self.n_output = n_output
         self.n_hidden = n_hidden
@@ -30,6 +31,8 @@ class AgentCore(object):
         self.max_grad = max_grad
         self.n_action = n_action
         self.window = window
+        self.max_sample_pool = max_sample_pool
+        self.tau = tau
 
     def build_net(self):
         self.input_x = tf.placeholder(tf.float32, [None, self.n_input+self.n_action], name='input_x')
@@ -50,8 +53,15 @@ class AgentCore(object):
 
         # 辅助网络确定目标Q值,保证目标Q值的稳定
         self.auxi_input_x = tf.placeholder(tf.float32, [None, self.n_input+self.n_action], name='auxi_input_x')
-        self.AW1 = tf.Variable(tf.random_normal([self.n_input+self.n_action, self.n_output],mean=0,stddev=1),name='AW1')
-        self.target_out = tf.matmul(self.auxi_input_x, self.AW1)
+        self.AW1 = tf.get_variable('AW1', shape=[self.n_input+self.n_action, self.n_hidden], 
+                                    initializer=tf.contrib.layers.xavier_initializer())
+        layer1 = tf.sigmoid(tf.matmul(self.auxi_input_x, self.AW1))
+        self.AW2 = tf.get_variable('AW2', shape=[self.n_hidden, self.n_hidden], 
+                                    initializer=tf.contrib.layers.xavier_initializer())
+        layer2 = tf.sigmoid(tf.matmul(layer1, self.AW2))
+        self.AW3 = tf.get_variable('AW3', shape=[self.n_hidden, self.n_output], 
+                                    initializer=tf.contrib.layers.xavier_initializer())
+        self.target_out = tf.matmul(layer2, self.AW3)
 
         tf.add_to_collection('net_out', self.net_out)
         #tf.add_to_collection('target_out', self.target_out)
@@ -62,15 +72,17 @@ class AgentCore(object):
         W2_grad = tf.placeholder(tf.float32, name='batch_grad2')
         W3_grad = tf.placeholder(tf.float32, name='batch_grad3')
         batch_grad = [W1_grad, W2_grad, W3_grad]
-        update_grad = adam.apply_gradients(zip(batch_grad, tvars[:-1]))
+        total_var = len(tvars)
+        update_grad = adam.apply_gradients(zip(batch_grad, tvars[:total_var//2]))
         return W1_grad, W2_grad, W3_grad, update_grad
 
     def build_grad(self):
         input_y = tf.placeholder(tf.float32, [None, self.n_output], name='input_y')
         loss = tf.reduce_mean(tf.square(input_y - self.net_out))
         tvars = tf.trainable_variables()
-        new_grads = tf.gradients(loss,tvars[:-1])
-        new_grads = [tf.clip_by_value(grad, self.min_grad, self.max_grad) for grad in new_grads]
+        total_var = len(tvars)
+        new_grads = tf.gradients(loss,tvars[:total_var//2])
+        #new_grads = [tf.clip_by_value(grad, self.min_grad, self.max_grad) for grad in new_grads]
         return input_y, tvars, new_grads, loss
     
     def write2file(self, x, y):
@@ -84,13 +96,11 @@ class AgentCore(object):
     """
     Generate mini-batch sample
     """
-    def gen_mini_batch(self, sess, sample_buffer_x, sample_buffer_y):
-        X, y = list(), list()
+    def gen_mini_batch(self, sess, buffer_X, buffer_R, buffer_AX):
         xs, vs, rs = list(), list(), list()
         env = Env()
-        t = 1
         obser = env.reset()
-        while t <= self.batch_size:
+        while True:
             xs.append(copy.deepcopy(obser))
             action = np.random.randint(0,self.n_action)
             vs.append(action)
@@ -98,26 +108,36 @@ class AgentCore(object):
             rs.append(reward)
             if done:
                 if len(xs) >= self.window:
-                    mX, my = self.obtain_sample(sess, xs, vs, rs)
-                    X.extend(mX)
-                    y.extend(my)
-                    t += 1
+                    mX, mR, mAX = self.obtain_sample(sess, xs, vs, rs)
+                    if len(buffer_X) >= self.max_sample_pool:
+                        del buffer_X[0]
+                        del buffer_R[0]
+                        del buffer_AX[0]
+                    buffer_X.extend(mX)
+                    buffer_R.extend(mR)
+                    buffer_AX.extend(mAX)
+                    break
                 obser = env.reset()
                 xs, vs, rs = list(), list(), list()
         #X = sess.run(tf.nn.l2_normalize(X, axis = 0))
-        if config.GEN_SAMPLE_FILE:
-            self.write2file(X, y)
+        #if config.GEN_SAMPLE_FILE:
+        #    self.write2file(X, y)
         #sample_buffer_x.extend(X)
         #sample_buffer_y.extend(y)
         #if len(sample_buffer_x) > self.max_sample_pool:
-
-        return X, y
+        #print(np.array(buffer_X).shape)
+        #print(np.array(buffer_R).shape)
+        #print(np.array(buffer_AX).shape)
+        if len(buffer_X) >= self.batch_size:
+            start = np.random.randint(0,len(buffer_X)-self.batch_size+1)
+            end = start + self.batch_size
+            return buffer_X[start:end], buffer_R[start:end], buffer_AX[start:end]
+        return None, None, None
 
     def obtain_sample(self, sess, xs, vs, rs):
-        X, y = list(), list()
+        X, curr_reward, auxi_X = list(), list(), list()
         for ix in range(len(xs)-1):
             next_x = xs[ix+1]
-            #print(next_x)
             curr_x, curr_act, curr_r = xs[ix], vs[ix], rs[ix]
             # look through all actions
             max_reward = -1e10
@@ -132,49 +152,67 @@ class AgentCore(object):
                 expect_value = sess.run(self.net_out, feed_dict={self.input_x:tmp_x})[0][0]
                 if expect_value > max_reward:
                     max_reward = expect_value
-                    auxi_input_x = copy.deepcopy(tmp_x)
+                    auxi_input_x = next_x + act
                 del tmp_x
-            Q_value = sess.run(self.target_out, feed_dict={self.auxi_input_x:auxi_input_x})[0][0]
             act = [0]*self.n_action
             act[curr_act] = 1
             new_x = curr_x + act
             new_x = [float(item) for item in new_x]
             X.append(new_x)
-            y.append(curr_r + self.discount_rate * Q_value)
-        return X, y
+            curr_reward.append(curr_r)
+            auxi_X.append(auxi_input_x)
+            #y.append(curr_r + self.discount_rate * max_reward)
+        return X, curr_reward, auxi_X
+
+    def update_auxi_net_var(self, tvars, sess):
+        total_var = len(tvars)
+        op_holder = list()
+        mid = total_var // 2
+        for ix, var in enumerate(tvars[:mid]):
+            op = tvars[ix+mid].assign(self.tau * var.value() + (1-self.tau) * tvars[ix+mid].value())
+            op_holder.append(op)
+    
+        for op in op_holder:
+            sess.run(op)
 
     def start_train(self):
         with tf.Session() as sess:
             self.build_net()
             input_y, tvars, new_grads, loss = self.build_grad()
-            W1_grad, W2_grad, W3_grad, AW1_grad, update_grad = self.learn_grad(tvars)
+            W1_grad, W2_grad, W3_grad, update_grad = self.learn_grad(tvars)
             init = tf.global_variables_initializer()
             sess.run(init)
             tf.summary.scalar('loss', loss)
             tf.summary.histogram('W1', self.W1)
             tf.summary.histogram('W2', self.W2)
             tf.summary.histogram('W3', self.W3)
+            tf.summary.histogram('AW1', self.AW1)
+            tf.summary.histogram('AW2', self.AW2)
+            tf.summary.histogram('AW3', self.AW3)
             merged = tf.summary.merge_all()
-            #print(merged)
-            writer = tf.summary.FileWriter('logs', sess.graph)
-            grad_buffer = sess.run(tvars)
+            writer = tf.summary.FileWriter(config.LOG_SAVE_PATH, sess.graph)
             saver = tf.train.Saver()
-            for i,grad in enumerate(grad_buffer):
-                grad_buffer[i] = grad * 0
             t = 1
-            sample_buffer_x = list()
-            sample_buffer_y = list()
+            buffer_X, buffer_R, buffer_AX = list(), list(), list()
             while t <= self.n_epoch:
-                X, y = self.gen_mini_batch(sess, sample_buffer_x, sample_buffer_y)
-                epx = np.vstack(X)
-                epy = np.vstack(y)
+                batch_x, batch_r, batch_ax = self.gen_mini_batch(sess, buffer_X, buffer_R, buffer_AX)
+                if batch_x is None:
+                    continue
+                self.update_auxi_net_var(tvars, sess)
+                target_value = sess.run(self.target_out, feed_dict={self.auxi_input_x: batch_ax})
+                batch_y = list()
+                for ix, r in enumerate(batch_r):
+                    batch_y.append(r + self.discount_rate*target_value[ix][0])
+                epx = np.vstack(batch_x)
+                epy = np.vstack(batch_y)
                 t_grad = sess.run(new_grads, feed_dict={self.input_x:epx,input_y:epy})
                 cost = sess.run(loss, feed_dict={self.input_x:epx,input_y:epy})
                 print('cost for epoch %d : %f.' %(t, cost))
                 sess.run(update_grad, feed_dict={W1_grad:t_grad[0], 
-                            W2_grad:t_grad[1], W3_grad:t_grad[2], AW1_grad:t_grad[3]})
+                            W2_grad:t_grad[1], W3_grad:t_grad[2]})
                 log_result = sess.run(merged, feed_dict={self.input_x:epx,input_y:epy})
                 writer.add_summary(log_result, t)
+                #self.update_auxi_net_var(tvars, sess)
                 t += 1
             saver.save(sess, config.MODEL_SAVE_PATH)
             print('--------training successful--------')
@@ -186,19 +224,14 @@ class AgentCore(object):
         print(obser)
         final_action, reward = list(), list()
         with tf.Session() as sess:
-            saver = tf.train.import_meta_graph('./model/deep_q.ckpt.meta')
-            model_file=tf.train.latest_checkpoint('./model/')
+            saver = tf.train.import_meta_graph(config.MODEL_META_PATH)
+            model_file=tf.train.latest_checkpoint(config.MODEL_PATH)
             saver.restore(sess,model_file)
             net_out = tf.get_collection('net_out')
-            tvars = tf.trainable_variables()
-            #for var in tvars:
-            #    print(var.name)
-            #    print(var.eval())
-            #print(W1.eval())
             is_done = False
             while True:
                 order_act_reward = list()
-                for action in range(self.n_action):
+                for action in range(self.n_action-1):
                     act = [0] * self.n_action
                     act[action] = 1
                     x = copy.deepcopy(obser)
@@ -224,5 +257,5 @@ class AgentCore(object):
 
 if __name__ == '__main__':
     agent = AgentCore(n_input=config.N_INPUT, n_output=config.N_OUTPUT)
-    agent.start_train()
-    #agent.predict()
+    #agent.start_train()
+    agent.predict()
