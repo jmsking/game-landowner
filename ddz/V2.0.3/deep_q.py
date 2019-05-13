@@ -1,10 +1,18 @@
 #! /usr/bin/env python3
 
+from __future__ import absolute_import
+
 import numpy as np
 import tensorflow as tf
 from env import Env
 import config
 import copy
+from player_role_enum import PlayerRoleEnum
+import all_card
+import random
+from hand_card_utils import HandCardUtils
+from action_type_enum import ActionTypeEnum
+import all_card
 
 AGENT_DEBUG = config.DEBUG_MODE
 
@@ -17,8 +25,8 @@ class AgentCore(object):
     Args:
         discount_rate: 衰减因子
     """
-    def __init__(self, n_input, n_output, n_hidden=20, discount_rate=0.99, learning_rate=0.001, n_epoch=1000,
-                batch_size=100, min_grad = 0.1, max_grad = 1, n_action = 27, window = 5,
+    def __init__(self, n_input, n_output, n_hidden=20, discount_rate=0.99, learning_rate=0.001, n_epoch=50,
+                batch_size=10, min_grad = 0.1, max_grad = 1, n_action = 27, window = 2,
                 max_sample_pool = 100000, tau = 0.001):
         self.n_input = n_input
         self.n_output = n_output
@@ -84,55 +92,246 @@ class AgentCore(object):
         new_grads = tf.gradients(loss,tvars[:total_var//2])
         #new_grads = [tf.clip_by_value(grad, self.min_grad, self.max_grad) for grad in new_grads]
         return input_y, tvars, new_grads, loss
-    
-    def write2file(self, x, y):
-        with open('sample.txt', 'a', encoding='utf-8') as f:
-            for ix, item in enumerate(x):
-                val = item + [y[ix]]
-                text = str(val)
-                f.write(text)
-                f.write('\n')
+
+    def _gen_agent(self):
+        random.shuffle(all_card.ALL_CARD_NO_COLOR)
+        #main_agent = all_card.ALL_CARD_NO_COLOR[:20]
+        #low_agent = all_card.ALL_CARD_NO_COLOR[20:38]
+        #up_agent = all_card.ALL_CARD_NO_COLOR[38:]
+        main_agent = [3, 3, 4, 4, 6, 7, 7, 7, 8, 10, 10, 11, 11, 12, 12, 12, 12, 15, 15, 16]
+        low_agent = [3, 3, 4, 5, 8, 8, 8, 9, 9, 10, 11, 13, 13, 13, 14, 14, 15]
+        up_agent =  [4, 5, 5, 5, 6, 6, 6, 7, 9, 9, 10, 11, 13, 14, 14, 15, 17]
+        main_agent_status = HandCardUtils.obtain_hand_card_status(main_agent)
+        low_agent_status = HandCardUtils.obtain_hand_card_status(low_agent)
+        up_agent_status = HandCardUtils.obtain_hand_card_status(up_agent)
+        return main_agent_status, low_agent_status, up_agent_status
 
     """
     Generate mini-batch sample
     """
     def gen_mini_batch(self, sess, buffer_X, buffer_R, buffer_AX):
-        xs, vs, rs = list(), list(), list()
+        xs_o, vs_o, rs_o = list(), list(), list()
+        xs_l, vs_l, rs_l = list(), list(), list()
+        xs_u, vs_u, rs_u = list(), list(), list()
+        main_agent_status, low_agent_status, up_agent_status = self._gen_agent()
         env = Env()
-        obser = env.reset()
+        put_card_status = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+        main_role = PlayerRoleEnum.LAND_OWNER
+        low_role = PlayerRoleEnum.LOW_LAND_OWNER
+        up_role = PlayerRoleEnum.UP_LAND_OWNER
+        last_action = None
+        curr_flag = "o" # 'o', 'l', 'u'
         while True:
-            xs.append(copy.deepcopy(obser))
-            action = np.random.randint(0,self.n_action)
-            vs.append(action)
-            obser, reward, done, _ = env.step(action)
-            rs.append(reward)
+            obser = env.specify_env(main_agent_status, put_card_status, main_role)
+            xs_o.append(copy.deepcopy(obser))
+            action = ActionTypeEnum.ACTION_DEFAULT.value
+            if last_action and curr_flag != 'o':
+                while True:
+                    action = np.random.choice(
+                        [last_action, 
+                        ActionTypeEnum.ACTION_PUT_BOMB.value, 
+                        ActionTypeEnum.ACTION_NO_PUT.value], 1)[0]
+                    obser, reward, done, info = env.step(action)
+                    err = info['error']
+                    if not err:
+                        env.restore()
+                        break
+                    env.restore() 
+            else:
+                while True:
+                    #agent_card_status = self._get_next_agent_status(env.hand_card_status, env.put_card_status)
+                    action = np.random.randint(0,self.n_action-1)
+                    #card_count = sum(env.hand_card_status)
+                    obser, reward, done, info = env.step(action)
+                    err = info['error']
+                    if not err:
+                        env.restore()
+                        break
+                    env.restore()
+            # reward decay of up_agent
+            if last_action and action not in [ActionTypeEnum.ACTION_NO_PUT.value, ActionTypeEnum.ACTION_PUT_BOMB.value]:
+                rs_u[-1] -= 0.1
+            if action != ActionTypeEnum.ACTION_NO_PUT.value:
+                curr_flag = 'o'
+                last_action = action
+            obser, reward, done, info = env.step(action)
+            main_agent_status = env.hand_card_status
+            put_card_status = env.put_card_status
+            vs_o.append(action)
+            last_action = action
+            rs_o.append(reward)
+            #print('----------------o---------------')
+            #print(sum(main_agent_status))
+            #print(done)
             if done:
-                if len(xs) >= self.window:
-                    mX, mR, mAX = self.obtain_sample(sess, xs, vs, rs)
-                    if len(buffer_X) >= self.max_sample_pool:
-                        del buffer_X[0]
-                        del buffer_R[0]
-                        del buffer_AX[0]
+                if len(xs_o) >= self.window:
+                    #rs_o = list(map(lambda x:x+1,rs_o))
+                    
+                    mX, mR, mAX = self.obtain_sample(sess, xs_o, vs_o, rs_o)
                     buffer_X.extend(mX)
                     buffer_R.extend(mR)
                     buffer_AX.extend(mAX)
-                    break
-                obser = env.reset()
-                xs, vs, rs = list(), list(), list()
+                if len(xs_l) >= self.window:
+                    #rs_l = list(map(lambda x:x-1,rs_l))
+                    mX, mR, mAX = self.obtain_sample(sess, xs_l, vs_l, rs_l)
+                    buffer_X.extend(mX)
+                    buffer_R.extend(mR)
+                    buffer_AX.extend(mAX)
+                if len(xs_u) >= self.window:
+                    #rs_u = list(map(lambda x:x-1,rs_u))
+                    rs_u[-1] = rs_u[-1] - 10
+                    mX, mR, mAX = self.obtain_sample(sess, xs_u, vs_u, rs_u)
+                    buffer_X.extend(mX)
+                    buffer_R.extend(mR)
+                    buffer_AX.extend(mAX)
+                break
+            obser = env.specify_env(low_agent_status, put_card_status, low_role)
+            xs_l.append(copy.deepcopy(obser))
+            action = ActionTypeEnum.ACTION_DEFAULT.value
+            if last_action and curr_flag != 'l':
+                while True:
+                    action = np.random.choice(
+                        [last_action, 
+                        ActionTypeEnum.ACTION_PUT_BOMB.value, 
+                        ActionTypeEnum.ACTION_NO_PUT.value], 1)[0]
+                    obser, reward, done, info = env.step(action)
+                    err = info['error']
+                    if not err:
+                        env.restore()
+                        break
+                    env.restore() 
+            else:
+                while True:
+                    #agent_card_status = self._get_next_agent_status(env.hand_card_status, env.put_card_status)
+                    action = np.random.randint(0,self.n_action-1)
+                    #card_count = sum(env.hand_card_status)
+                    obser, reward, done, info = env.step(action)
+                    err = info['error']
+                    if not err:
+                        env.restore()
+                        break
+                    env.restore()
+            # reward decay of low_agent
+            if last_action and action not in [ActionTypeEnum.ACTION_NO_PUT.value, ActionTypeEnum.ACTION_PUT_BOMB.value]:
+                rs_o[-1] -= 0.1
+            if action != ActionTypeEnum.ACTION_NO_PUT.value:
+                curr_flag = 'l'
+                last_action = action
+            obser, reward, done, info = env.step(action)
+            low_agent_status = env.hand_card_status
+            put_card_status = env.put_card_status
+            vs_l.append(action)
+            last_action = action
+            primary_item = info['primary_item']
+            #is_find = HandCardUtils.is_find_hand_card_type(agent_card_status, primary_item, action)
+            #reward = self._process_reward(reward, main_role, is_find, action, card_count)
+            rs_l.append(reward)
+            #print('----------------l---------------')
+            #print(sum(low_agent_status))
+            #print(done)
+            if done:
+                if len(xs_o) >= self.window:
+                    #rs_o = list(map(lambda x:x-1,rs_o))
+                    rs_o[-1] = rs_o[-1] - 10
+                    mX, mR, mAX = self.obtain_sample(sess, xs_o, vs_o, rs_o)
+                    buffer_X.extend(mX)
+                    buffer_R.extend(mR)
+                    buffer_AX.extend(mAX)
+                if len(xs_l) >= self.window:
+                    #rs_l = list(map(lambda x:x+1,rs_l))
+                    mX, mR, mAX = self.obtain_sample(sess, xs_l, vs_l, rs_l)
+                    buffer_X.extend(mX)
+                    buffer_R.extend(mR)
+                    buffer_AX.extend(mAX)
+                if len(xs_u) >= self.window:
+                    #rs_u = list(map(lambda x:x+1,rs_u))
+                    mX, mR, mAX = self.obtain_sample(sess, xs_u, vs_u, rs_u)
+                    buffer_X.extend(mX)
+                    buffer_R.extend(mR)
+                    buffer_AX.extend(mAX)
+                break
+            obser = env.specify_env(up_agent_status, put_card_status, up_role)
+            xs_u.append(copy.deepcopy(obser))
+            action = ActionTypeEnum.ACTION_DEFAULT.value
+            if last_action and curr_flag != 'u':
+                while True:
+                    action = np.random.choice(
+                        [last_action, 
+                        ActionTypeEnum.ACTION_PUT_BOMB.value, 
+                        ActionTypeEnum.ACTION_NO_PUT.value], 1)[0]
+                    obser, reward, done, info = env.step(action)
+                    err = info['error']
+                    if not err:
+                        env.restore()
+                        break
+                    env.restore() 
+            else:
+                while True:
+                    #agent_card_status = self._get_next_agent_status(env.hand_card_status, env.put_card_status)
+                    action = np.random.randint(0,self.n_action-1)
+                    #card_count = sum(env.hand_card_status)
+                    obser, reward, done, info = env.step(action)
+                    err = info['error']
+                    if not err:
+                        env.restore()
+                        break
+                    env.restore()
+            # reward decay of up_agent
+            is_decay = False
+            if last_action and action not in [ActionTypeEnum.ACTION_NO_PUT.value, ActionTypeEnum.ACTION_PUT_BOMB.value]:
+                is_decay = True
+            if action != ActionTypeEnum.ACTION_NO_PUT.value:
+                curr_flag = 'u'
+                last_action = action
+            obser, reward, done, info = env.step(action)
+            up_agent_status = env.hand_card_status
+            put_card_status = env.put_card_status
+            vs_u.append(action)
+            last_action = action
+            primary_item = info['primary_item']
+            #is_find = HandCardUtils.is_find_hand_card_type(agent_card_status, primary_item, action)
+            #reward = self._process_reward(reward, main_role, is_find, action, card_count)
+            if is_decay:
+                reward -= 0.1
+            rs_u.append(reward)
+            #print('----------------u---------------')
+            #print(sum(up_agent_status))
+            #print(done)
+            if done:
+                if len(xs_o) >= self.window:
+                    #rs_o = list(map(lambda x:x-1,rs_o))
+                    mX, mR, mAX = self.obtain_sample(sess, xs_o, vs_o, rs_o)
+                    buffer_X.extend(mX)
+                    buffer_R.extend(mR)
+                    buffer_AX.extend(mAX)
+                if len(xs_l) >= self.window:
+                    #rs_l = list(map(lambda x:x+1,rs_l))
+                    rs_l[-1] = rs_l[-1] + 10
+                    mX, mR, mAX = self.obtain_sample(sess, xs_l, vs_l, rs_l)
+                    buffer_X.extend(mX)
+                    buffer_R.extend(mR)
+                    buffer_AX.extend(mAX)
+                if len(xs_u) >= self.window:
+                    rs_u = list(map(lambda x:x+1,rs_u))
+                    mX, mR, mAX = self.obtain_sample(sess, xs_u, vs_u, rs_u)
+                    buffer_X.extend(mX)
+                    buffer_R.extend(mR)
+                    buffer_AX.extend(mAX)
+                break
+        
         #X = sess.run(tf.nn.l2_normalize(X, axis = 0))
         #if config.GEN_SAMPLE_FILE:
         #    self.write2file(X, y)
-        #sample_buffer_x.extend(X)
-        #sample_buffer_y.extend(y)
-        #if len(sample_buffer_x) > self.max_sample_pool:
-        #print(np.array(buffer_X).shape)
-        #print(np.array(buffer_R).shape)
-        #print(np.array(buffer_AX).shape)
-        if len(buffer_X) >= self.batch_size:
+        if len(buffer_X) > self.max_sample_pool:
+            diff_len = len(buffer_X) - self.max_sample_pool
+            buffer_X = buffer_X[diff_len:]
+            buffer_R = buffer_R[diff_len:]
+            buffer_AX = buffer_AX[diff_len:]
+        if len(buffer_X) > self.batch_size:    
             start = np.random.randint(0,len(buffer_X)-self.batch_size+1)
             end = start + self.batch_size
             return buffer_X[start:end], buffer_R[start:end], buffer_AX[start:end]
-        return None, None, None
+        return buffer_X, buffer_R, buffer_AX
 
     def obtain_sample(self, sess, xs, vs, rs):
         X, curr_reward, auxi_X = list(), list(), list()
@@ -161,7 +360,6 @@ class AgentCore(object):
             X.append(new_x)
             curr_reward.append(curr_r)
             auxi_X.append(auxi_input_x)
-            #y.append(curr_r + self.discount_rate * max_reward)
         return X, curr_reward, auxi_X
 
     def update_auxi_net_var(self, tvars, sess):
@@ -196,8 +394,7 @@ class AgentCore(object):
             buffer_X, buffer_R, buffer_AX = list(), list(), list()
             while t <= self.n_epoch:
                 batch_x, batch_r, batch_ax = self.gen_mini_batch(sess, buffer_X, buffer_R, buffer_AX)
-                if batch_x is None:
-                    continue
+                print(len(batch_x), len(batch_r), len(batch_ax))
                 self.update_auxi_net_var(tvars, sess)
                 target_value = sess.run(self.target_out, feed_dict={self.auxi_input_x: batch_ax})
                 batch_y = list()

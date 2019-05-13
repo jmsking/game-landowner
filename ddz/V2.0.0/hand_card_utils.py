@@ -1,5 +1,7 @@
 #! /usr/bin/env python3
 
+from __future__ import absolute_import
+
 from card_type_struct import CardTypeStruct
 from card_type_enum import CardTypeEnum
 from card_enum import CardEnum

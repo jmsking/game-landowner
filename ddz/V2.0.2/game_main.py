@@ -88,35 +88,35 @@ class GameMain(object):
         self._players[id1] = player1
         self._players[id2] = player2
         self._players[id3] = player3
-        sleep_time = 1
+        sleep_time = 5
         print('游戏%s后开始...' %sleep_time)
         for k in range(sleep_time):
             print(sleep_time-k)
             time.sleep(1)
         print('-----------------游戏开始---------------')
         random.shuffle(all_card.ALL_CARD)
-        time.sleep(1)
+        time.sleep(3)
         print('开始为玩家[ID=%s]发牌' %id1)
         hand_card = self.deal_card(1)
         hcs1 = HandCardStruct()
         hcs1.hand_card_color_seq = hand_card
         player1.hand_card_struct = hcs1
         print('玩家[ID=%s]的手牌为\n%s' %(id1, hcs1.hand_card_seq))
-        time.sleep(1)
+        time.sleep(3)
         print('开始为玩家[ID=%s]发牌' %id2)
         hand_card = self.deal_card(2)
         hcs2 = HandCardStruct()
         hcs2.hand_card_color_seq = hand_card
         player2.hand_card_struct = hcs2
         print('玩家[ID=%s]的手牌为\n%s' %(id2, hcs2.hand_card_seq))
-        time.sleep(1)
+        time.sleep(3)
         print('开始为玩家[ID=%s]发牌' %id3)
         hand_card = self.deal_card(3)
         hcs3 = HandCardStruct()
         hcs3.hand_card_color_seq = hand_card
         player3.hand_card_struct = hcs3
         print('玩家[ID=%s]的手牌为\n%s' %(id3, hcs3.hand_card_seq))
-        time.sleep(1)
+        time.sleep(3)
         # TO DO: 目前是随机一个玩家为地主,后续需要添加抢地主环节
         land_rnd, self._land_owner_id = self.call_by([id1,id2,id3])
         print('地主被玩家[ID=%s]抢到' %self._land_owner_id)
@@ -214,7 +214,7 @@ class GameMain(object):
             order_action = list(filter(lambda x: x == last_action or x == ActionTypeEnum.ACTION_PUT_BOMB.value, order_action))
         else:
             order_action.remove(ActionTypeEnum.ACTION_NO_PUT.value)
-        print('order action: {}'.format(order_action))
+        #print('order action: {}'.format(order_action))
         can_accept = False
         accpet_action = None
         for action in order_action:
@@ -272,6 +272,7 @@ class GameMain(object):
                 else:
                     print('玩家[ID=%s]要不起' %(curr_player_id))
                 # 轮到下一个玩家
+                time.sleep(5)
                 k = (k + 1) % 3
                 t += 1
                 #if t == 10:

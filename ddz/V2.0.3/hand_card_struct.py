@@ -73,6 +73,8 @@ class HandCardStruct(object):
         self._hand_card_status = HandCardUtils.obtain_hand_card_status(self._hand_card_seq)
         # 记录每张牌的个数
         self._hand_card_count = sum(self._hand_card_status)
+        # 得到手牌的初始价值
+        self._hand_card_value = HandCardUtils.hand_card_init_value(self._hand_card_seq)
 
 if __name__ == '__main__':
     from card_color_enum import CardColorEnum

@@ -14,8 +14,14 @@ for k in range(CardEnum.TH.value, CardEnum.QU.value, 1):
 ALL_CARD.append((CardColorEnum.SPADE,CardEnum.QU.value))
 ALL_CARD.append((CardColorEnum.HEART,CardEnum.JA.value))
 
+
+ALL_CARD_NO_COLOR = list(map(lambda x:x[1], ALL_CARD))
+
+
 if __name__  == '__main__':
-    random.shuffle(ALL_CARD)
-    for item in ALL_CARD:
-        print(item)
+    #random.shuffle(ALL_CARD)
+    #for item in ALL_CARD:
+    #    print(item)
     #print(ALL_CARD)
+    for item in ALL_CARD_NO_COLOR:
+        print(item)
