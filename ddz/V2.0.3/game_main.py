@@ -275,7 +275,7 @@ class GameMain(object):
                         else:
                             put_card_temp.append(x)
 
-                    print('玩家[ID=%s]出牌 -> %s' %(curr_player_id, put_card_temp))
+                    print('玩家[ID=%s]出牌 -> %s \n' %(curr_player_id, put_card_temp))
                     curr_master_id = order_player_ids[k]
                     lcts = CardTypeStruct()
                     lcts.card_type = action
@@ -284,14 +284,14 @@ class GameMain(object):
                     last_action = action
                 else:
                     time.sleep(self._sleep_time)
-                    print('玩家[ID=%s]要不起' %(curr_player_id))
+                    print('玩家[ID=%s]要不起 \n' %(curr_player_id))
                 # 轮到下一个玩家
                 k = (k + 1) % 3
                 t += 1
                 #if t == 10:
                 #    break
         time.sleep(self._sleep_time)
-        print('Game over')
+        print('Game over \n')
         
 
 
