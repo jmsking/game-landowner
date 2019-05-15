@@ -45,7 +45,7 @@ class GameMain(object):
         self._game_is_over = False
 
         # 延迟时间
-        self._sleep_time = 3
+        self._sleep_time = 0
 
     """ 发牌
     """
@@ -82,6 +82,7 @@ class GameMain(object):
                 curr_grab_level = input('玩家[ID=%s]是否抢地主(需要大于%d).[0: 不抢, 1: 抢地主, 2: 加倍, 3: 超级加倍]' %(player1.player_id, grab_level))
                 curr_grab_level = int(curr_grab_level)
                 if curr_grab_level == 3:
+                    curr_call_ind = 0
                     return curr_call_ind, player_ids[curr_call_ind]
                 if curr_grab_level > grab_level:
                     curr_call_ind = 0
@@ -178,7 +179,7 @@ class GameMain(object):
         self._players[id1] = player1
         self._players[id2] = player2
         self._players[id3] = player3
-        sleep_time = 1
+        sleep_time = 3
         print('游戏%s后开始...' %sleep_time)
         for k in range(sleep_time):
             print(sleep_time-k)
@@ -245,7 +246,7 @@ class GameMain(object):
         self._players[id1] = player1
         self._players[id2] = player2
         self._players[id3] = player3
-        sleep_time = 1
+        sleep_time = 3
         print('游戏%s后开始...' %sleep_time)
         for k in range(sleep_time):
             print(sleep_time-k)
@@ -444,7 +445,18 @@ class GameMain(object):
                 if len(input_card) == 0 and last_action is not None:
                     return None, [], None
                 input_card = input_card.split()
-                input_card = list(map(lambda x:int(x), input_card))
+
+                input_card_temp = []
+                new_dict = {v : k for k, v in CARD_MAP.items()}
+                for card in input_card:
+                    card_temp = card.capitalize()
+                    if card_temp in new_dict:
+                        input_card_temp.append(new_dict[card_temp])
+                    elif card.isdigit() and int(card) >= 0 and int(card) <= 10:
+                        input_card_temp.append(int(card))
+
+                input_card = list(map(lambda x:int(x), input_card_temp))
+                
                 is_contain = HandCardUtils.is_contain_card(curr_player.hand_card_struct.hand_card_status, input_card)
                 is_find, cts = HandCardUtils.is_one_hand(input_card)
                 is_meet = True
