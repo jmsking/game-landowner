@@ -14,7 +14,12 @@ import numpy as np
 from action_type_enum import ActionTypeEnum
 import config
 from hand_card_utils import HandCardUtils
+<<<<<<< HEAD
 from card_color_enum import CardColorEnum
+=======
+from card_enum import CARD_MAP
+
+>>>>>>> c74f54a7c2c930382614e14e368b240dda2e41d5
 
 """
 游戏主体类
@@ -42,6 +47,9 @@ class GameMain(object):
         self._current_put_card_type = None
         # 当前游戏是否结束
         self._game_is_over = False
+
+        # 延迟时间
+        self._sleep_time = 3
 
     """ 发牌
     """
@@ -334,7 +342,7 @@ class GameMain(object):
         self._players[id1] = player1
         self._players[id2] = player2
         self._players[id3] = player3
-        sleep_time = 1
+        sleep_time = self._sleep_time
         print('游戏%s后开始...' %sleep_time)
         for k in range(sleep_time):
             print(sleep_time-k)
@@ -523,7 +531,15 @@ class GameMain(object):
                 # 当前玩家出牌
                 action, put_card, primary_item = self.put_card_process(sess, env, curr_player_id, net_out, lcts, last_action)
                 if len(put_card) > 0:
-                    print('玩家[ID=%s]出牌 -> %s' %(curr_player_id, put_card))
+                    put_card_temp = []
+                    time.sleep(self._sleep_time)
+                    for x in put_card:
+                        if x in CARD_MAP:
+                            put_card_temp.append(CARD_MAP[x])
+                        else:
+                            put_card_temp.append(x)
+
+                    print('玩家[ID=%s]出牌 -> %s \n' %(curr_player_id, put_card_temp))
                     curr_master_id = order_player_ids[k]
                     lcts = CardTypeStruct()
                     lcts.card_type = action
@@ -531,10 +547,19 @@ class GameMain(object):
                     lcts.primary_item = primary_item
                     last_action = action
                 else:
-                    print('玩家[ID=%s]要不起' %(curr_player_id))
+                    time.sleep(self._sleep_time)
+                    print('玩家[ID=%s]要不起 \n' %(curr_player_id))
                 # 轮到下一个玩家
                 k = (k + 1) % 3
+<<<<<<< HEAD
         print('Game over')
+=======
+                t += 1
+                #if t == 10:
+                #    break
+        time.sleep(self._sleep_time)
+        print('Game over \n')
+>>>>>>> c74f54a7c2c930382614e14e368b240dda2e41d5
         
 
 
