@@ -411,6 +411,21 @@ class GameMain(object):
         return order_player_ids
 
     """
+    获取玩家 title
+    """
+    def get_player_role_title(self, curr_player_id):
+        player = self._players[curr_player_id]
+        if player.player_role == PlayerRoleEnum.LAND_OWNER:
+            return "地主"
+        elif player.player_role == PlayerRoleEnum.UP_LAND_OWNER:
+            return "上家"
+        elif player.player_role == PlayerRoleEnum.LOW_LAND_OWNER:
+            return "下家"
+        else:
+            return ""
+
+
+    """
     更新当前玩家信息
     """
     def _update_curr_player(self, curr_player_id, put_card):
@@ -438,7 +453,7 @@ class GameMain(object):
     """
     def put_card_process(self, sess, env, curr_player_id, net_out, last_card_type_struct=None, last_action=None):
         curr_player = self._players[curr_player_id]
-        print('玩家[ID=%s]当前手牌: %s' %(curr_player_id, curr_player.hand_card_struct.hand_card_seq))
+        print('玩家[ID=%s ROLE=%s]当前手牌: %s' %(curr_player_id, self.get_player_role_title(curr_player_id), curr_player.hand_card_struct.hand_card_seq))
         if curr_player_id == human_player_id:
             while True:
                 input_card = input('请玩家[ID=%s]出牌(多张牌以空格分隔)' %(curr_player_id))
