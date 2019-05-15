@@ -123,6 +123,15 @@ class HandCardUtils(object):
                 break
         return isFind
 
+    @staticmethod
+    def is_contain_card(hand_card_status, put_card_seq):
+        put_card_status = HandCardUtils.obtain_hand_card_status(put_card_seq)
+        copy_status = hand_card_status.copy()
+        for ix in range(len(hand_card_status)):
+            copy_status[ix] -= put_card_status[ix]
+        neg = list(filter(lambda x:x<0, copy_status))
+        return len(neg) == 0
+
     """ 根据手牌状态判断是否是一手牌 """
     @staticmethod
     def is_one_hand(hand_card_seq):

@@ -445,8 +445,26 @@ class GameMain(object):
                     return None, [], None
                 input_card = input_card.split()
                 input_card = list(map(lambda x:int(x), input_card))
+                is_contain = HandCardUtils.is_contain_card(curr_player.hand_card_struct.hand_card_status, input_card)
                 is_find, cts = HandCardUtils.is_one_hand(input_card)
-                if is_find:
+                is_meet = True
+                if is_contain and is_find and last_action:
+                    is_meet = False
+                    last_primary_item = last_card_type_struct.primary_item
+                    card_type = cts.card_type
+                    primary_item = cts.primary_item
+                    card_count = cts.card_count
+                    if last_action == ActionTypeEnum.ACTION_PUT_BOMB.value:
+                        if card_type == last_action and card_count == 2:
+                            is_meet = True
+                        elif card_type == last_action and card_count == 4 and primary_item > last_primary_item:
+                            is_meet = True
+                    else:
+                        if card_type == ActionTypeEnum.ACTION_PUT_BOMB.value:
+                            is_meet = True
+                        elif card_type == last_action and primary_item > last_primary_item:
+                            is_meet = True
+                if is_contain and is_find and is_meet:
                     self._update_curr_player(curr_player_id, input_card)
                     if len(curr_player.hand_card_struct.hand_card_seq) == 0:
                         self._game_is_over = True
