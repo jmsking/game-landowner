@@ -25,7 +25,7 @@ class AgentCore(object):
     Args:
         discount_rate: 衰减因子
     """
-    def __init__(self, n_input, n_output, n_hidden=20, discount_rate=0.99, learning_rate=0.001, n_epoch=50,
+    def __init__(self, n_input, n_output, n_hidden=50, discount_rate=0.99, learning_rate=0.001, n_epoch=50,
                 batch_size=10, min_grad = 0.1, max_grad = 1, n_action = 27, window = 2,
                 max_sample_pool = 100000, tau = 0.001):
         self.n_input = n_input
@@ -160,9 +160,6 @@ class AgentCore(object):
             vs_o.append(action)
             last_action = action
             rs_o.append(reward)
-            #print('----------------o---------------')
-            #print(sum(main_agent_status))
-            #print(done)
             if done:
                 if len(xs_o) >= self.window:
                     #rs_o = list(map(lambda x:x+1,rs_o))
@@ -226,9 +223,6 @@ class AgentCore(object):
             #is_find = HandCardUtils.is_find_hand_card_type(agent_card_status, primary_item, action)
             #reward = self._process_reward(reward, main_role, is_find, action, card_count)
             rs_l.append(reward)
-            #print('----------------l---------------')
-            #print(sum(low_agent_status))
-            #print(done)
             if done:
                 if len(xs_o) >= self.window:
                     #rs_o = list(map(lambda x:x-1,rs_o))
@@ -294,9 +288,6 @@ class AgentCore(object):
             if is_decay:
                 reward -= 0.1
             rs_u.append(reward)
-            #print('----------------u---------------')
-            #print(sum(up_agent_status))
-            #print(done)
             if done:
                 if len(xs_o) >= self.window:
                     #rs_o = list(map(lambda x:x-1,rs_o))
