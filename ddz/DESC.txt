@@ -1,0 +1,6 @@
+1、deep Q-learning =》 计算最佳收益
+2、(4层)神经网络 =》 解决打牌组合
+
+
+
+/anaconda3/bin/python /Users/Greason/Documents/workspace_github_company/game-landowner/ddz/V2.0.3/game_main.py

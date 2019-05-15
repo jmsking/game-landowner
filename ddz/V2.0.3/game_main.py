@@ -456,10 +456,14 @@ class GameMain(object):
                         input_card_temp.append(int(card))
 
                 input_card = list(map(lambda x:int(x), input_card_temp))
+                print(input_card)
                 
                 is_contain = HandCardUtils.is_contain_card(curr_player.hand_card_struct.hand_card_status, input_card)
                 is_find, cts = HandCardUtils.is_one_hand(input_card)
                 is_meet = True
+                print(is_contain)
+                print(is_find)
+                print(is_meet)
                 if is_contain and is_find and last_action:
                     is_meet = False
                     last_primary_item = last_card_type_struct.primary_item

@@ -193,7 +193,7 @@ class HandCardUtils(object):
             if len(find_two) == 1 and len(find_three) == 1:
                 cts.primary_item = find_three[-1]
                 cts.card_type = ActionTypeEnum.ACTION_PUT_THREE_DOU.value
-                return True
+                return True, cts
             elif len(find_three) * 3 + len(find_two) * 2 == card_count and CardEnum.TW.value not in find_three:
                 if HandCardUtils.is_find(find_three):
                     cts.primary_item = find_three[-1]
