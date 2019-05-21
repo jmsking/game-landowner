@@ -155,14 +155,16 @@ class HandCardUtils(object):
             return True, cts
         # 对子(包含连对)
         if card_count % 2 == 0 and card_count > 0 and len(find_two) >= 1:
+            if card_count == 2 and len(find_two) == 1:
+                cts.primary_item = find_two[-1]
+                cts.card_type = ActionTypeEnum.ACTION_PUT_DOU.value
+                return True, cts
             # 列表中只含对子且对子中不含2
             if len(find_two) * 2 == card_count and CardEnum.TW.value not in find_two:
                 if HandCardUtils.is_find(find_two):
                     cts.primary_item = find_two[-1]
                     size = len(find_two)
-                    if size == 1:
-                        cts.card_type = ActionTypeEnum.ACTION_PUT_DOU.value
-                    elif size == 2:
+                    if size == 2:
                         cts.card_type = ActionTypeEnum.ACTION_PUT_2_DOU.value
                     elif size == 3:
                         cts.card_type = ActionTypeEnum.ACTION_PUT_2_DOU.value
@@ -193,7 +195,7 @@ class HandCardUtils(object):
             if len(find_two) == 1 and len(find_three) == 1:
                 cts.primary_item = find_three[-1]
                 cts.card_type = ActionTypeEnum.ACTION_PUT_THREE_DOU.value
-                return True
+                return True, cts
             elif len(find_three) * 3 + len(find_two) * 2 == card_count and CardEnum.TW.value not in find_three:
                 if HandCardUtils.is_find(find_three):
                     cts.primary_item = find_three[-1]

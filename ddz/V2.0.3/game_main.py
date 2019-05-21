@@ -45,7 +45,7 @@ class GameMain(object):
         self._game_is_over = False
 
         # 延迟时间
-        self._sleep_time = 3
+        self._sleep_time = 0
 
     """ 发牌
     """
@@ -82,6 +82,7 @@ class GameMain(object):
                 curr_grab_level = input('玩家[ID=%s]是否抢地主(需要大于%d).[0: 不抢, 1: 抢地主, 2: 加倍, 3: 超级加倍]' %(player1.player_id, grab_level))
                 curr_grab_level = int(curr_grab_level)
                 if curr_grab_level == 3:
+                    curr_call_ind = 0
                     return curr_call_ind, player_ids[curr_call_ind]
                 if curr_grab_level > grab_level:
                     curr_call_ind = 0
@@ -178,7 +179,7 @@ class GameMain(object):
         self._players[id1] = player1
         self._players[id2] = player2
         self._players[id3] = player3
-        sleep_time = 1
+        sleep_time = 3
         print('游戏%s后开始...' %sleep_time)
         for k in range(sleep_time):
             print(sleep_time-k)
@@ -245,7 +246,7 @@ class GameMain(object):
         self._players[id1] = player1
         self._players[id2] = player2
         self._players[id3] = player3
-        sleep_time = 1
+        sleep_time = 3
         print('游戏%s后开始...' %sleep_time)
         for k in range(sleep_time):
             print(sleep_time-k)
@@ -410,6 +411,21 @@ class GameMain(object):
         return order_player_ids
 
     """
+    获取玩家 title
+    """
+    def get_player_role_title(self, curr_player_id):
+        player = self._players[curr_player_id]
+        if player.player_role == PlayerRoleEnum.LAND_OWNER:
+            return "地主"
+        elif player.player_role == PlayerRoleEnum.UP_LAND_OWNER:
+            return "上家"
+        elif player.player_role == PlayerRoleEnum.LOW_LAND_OWNER:
+            return "下家"
+        else:
+            return ""
+
+
+    """
     更新当前玩家信息
     """
     def _update_curr_player(self, curr_player_id, put_card):
@@ -437,18 +453,38 @@ class GameMain(object):
     """
     def put_card_process(self, sess, env, curr_player_id, net_out, last_card_type_struct=None, last_action=None):
         curr_player = self._players[curr_player_id]
+<<<<<<< HEAD
         print('玩家[ID=%s]当前手牌: %s' %(curr_player_id, curr_player.hand_card_struct.hand_card_seq))
         #if curr_player_id == human_player_id:
         if curr_player_id is None:
+=======
+        print('玩家[ID=%s ROLE=%s]当前手牌: %s' %(curr_player_id, self.get_player_role_title(curr_player_id), curr_player.hand_card_struct.hand_card_seq))
+        if curr_player_id == human_player_id:
+>>>>>>> cf6e66c9a22a4aab0eb00e6f13a31cafaae49cc8
             while True:
                 input_card = input('请玩家[ID=%s]出牌(多张牌以空格分隔)' %(curr_player_id))
                 if len(input_card) == 0 and last_action is not None:
                     return None, [], None
                 input_card = input_card.split()
-                input_card = list(map(lambda x:int(x), input_card))
+
+                input_card_temp = []
+                new_dict = {v : k for k, v in CARD_MAP.items()}
+                for card in input_card:
+                    card_temp = card.capitalize()
+                    if card_temp in new_dict:
+                        input_card_temp.append(new_dict[card_temp])
+                    elif card.isdigit() and int(card) >= 0 and int(card) <= 10:
+                        input_card_temp.append(int(card))
+
+                input_card = list(map(lambda x:int(x), input_card_temp))
+                print(input_card)
+                
                 is_contain = HandCardUtils.is_contain_card(curr_player.hand_card_struct.hand_card_status, input_card)
                 is_find, cts = HandCardUtils.is_one_hand(input_card)
                 is_meet = True
+                print(is_contain)
+                print(is_find)
+                print(is_meet)
                 if is_contain and is_find and last_action:
                     is_meet = False
                     last_primary_item = last_card_type_struct.primary_item
