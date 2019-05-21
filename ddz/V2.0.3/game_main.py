@@ -438,7 +438,8 @@ class GameMain(object):
     def put_card_process(self, sess, env, curr_player_id, net_out, last_card_type_struct=None, last_action=None):
         curr_player = self._players[curr_player_id]
         print('玩家[ID=%s]当前手牌: %s' %(curr_player_id, curr_player.hand_card_struct.hand_card_seq))
-        if curr_player_id == human_player_id:
+        #if curr_player_id == human_player_id:
+        if curr_player_id is None:
             while True:
                 input_card = input('请玩家[ID=%s]出牌(多张牌以空格分隔)' %(curr_player_id))
                 if len(input_card) == 0 and last_action is not None:
@@ -522,8 +523,8 @@ class GameMain(object):
     """ 开始游戏
     """
     def game_start(self):
-        #self.set_game_env_test()
-        self.human_agent_battle()
+        self.set_game_env_test()
+        #self.human_agent_battle()
         order_player_ids = self.get_player_order()
         env = Env()
         k = 0

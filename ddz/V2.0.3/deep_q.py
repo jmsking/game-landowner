@@ -25,8 +25,8 @@ class AgentCore(object):
     Args:
         discount_rate: 衰减因子
     """
-    def __init__(self, n_input, n_output, n_hidden=50, discount_rate=0.99, learning_rate=0.001, n_epoch=50,
-                batch_size=10, min_grad = 0.1, max_grad = 1, n_action = 27, window = 2,
+    def __init__(self, n_input, n_output, n_hidden=50, discount_rate=0.99, learning_rate=0.001, n_epoch=5000,
+                batch_size=20, min_grad = 0.1, max_grad = 1, n_action = 27, window = 2,
                 max_sample_pool = 100000, tau = 0.001):
         self.n_input = n_input
         self.n_output = n_output
@@ -385,7 +385,6 @@ class AgentCore(object):
             buffer_X, buffer_R, buffer_AX = list(), list(), list()
             while t <= self.n_epoch:
                 batch_x, batch_r, batch_ax = self.gen_mini_batch(sess, buffer_X, buffer_R, buffer_AX)
-                print(len(batch_x), len(batch_r), len(batch_ax))
                 self.update_auxi_net_var(tvars, sess)
                 target_value = sess.run(self.target_out, feed_dict={self.auxi_input_x: batch_ax})
                 batch_y = list()
