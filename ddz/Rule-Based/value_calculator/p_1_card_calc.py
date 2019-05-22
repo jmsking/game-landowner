@@ -22,7 +22,8 @@ class P_1_CardCalc(AbstractValueCalculator):
     
     @staticmethod
     def obtain_reward(hand_card_status, surround, *args):
-        not_afford = False
+        info = dict()
+        put_card_status = surround.has_put_card_status
         last_player_role, last_card_type_struct, last_action = args[0], args[1], args[2]
         if len(args) != 3:
             last_player_role, last_card_type_struct, last_action = None, None, None
@@ -37,19 +38,17 @@ class P_1_CardCalc(AbstractValueCalculator):
             if isinstance(exist_card, int):
                 exist_card = [exist_card]
         if len(exist_card) == 0:
-            not_afford = True
+            info['error'] = True
         else:
             rnd = random.randint(0,len(exist_card)-1)
             put_card = exist_card[rnd]
             score = HandCardUtils.value_map(put_card, CardTypeEnum.CT_ONE, 1)
-            self.observation[put_card] -= 1
-            self.observation[18+put_card] += 1
-            self.hand_card_status[put_card] -= 1
-            self.put_card_status[put_card] += 1
+            hand_card_status[put_card] -= 1
+            put_card_status[put_card] += 1
             info['put_card'] = [put_card]
             info['primary_item'] = put_card
-            if ENV_DEBUG:
-                print('Put card %s' %put_card)
+
+        return score, info
 
 
 if __name__ == "__main__":
