@@ -25,7 +25,7 @@ class AgentCore(object):
     Args:
         discount_rate: 衰减因子
     """
-    def __init__(self, n_input, n_output, n_hidden=50, discount_rate=0.99, learning_rate=0.001, n_epoch=5000,
+    def __init__(self, n_input, n_output, n_hidden=50, discount_rate=0.99, learning_rate=0.001, n_epoch=100,
                 batch_size=20, min_grad = 0.1, max_grad = 1, n_action = 27, window = 2,
                 max_sample_pool = 100000, tau = 0.001):
         self.n_input = n_input
@@ -94,7 +94,7 @@ class AgentCore(object):
         return input_y, tvars, new_grads, loss
 
     def _gen_agent(self):
-        random.shuffle(all_card.ALL_CARD_NO_COLOR)
+        #random.shuffle(all_card.ALL_CARD_NO_COLOR)
         #main_agent = all_card.ALL_CARD_NO_COLOR[:20]
         #low_agent = all_card.ALL_CARD_NO_COLOR[20:38]
         #up_agent = all_card.ALL_CARD_NO_COLOR[38:]
@@ -171,16 +171,16 @@ class AgentCore(object):
                 if len(xs_l) >= self.window:
                     #rs_l = list(map(lambda x:x-1,rs_l))
                     mX, mR, mAX = self.obtain_sample(sess, xs_l, vs_l, rs_l)
-                    buffer_X.extend(mX)
-                    buffer_R.extend(mR)
-                    buffer_AX.extend(mAX)
+                    #buffer_X.extend(mX)
+                    #buffer_R.extend(mR)
+                    #buffer_AX.extend(mAX)
                 if len(xs_u) >= self.window:
                     #rs_u = list(map(lambda x:x-1,rs_u))
-                    rs_u[-1] = rs_u[-1] - 10
+                    #rs_u[-1] = rs_u[-1] - 10
                     mX, mR, mAX = self.obtain_sample(sess, xs_u, vs_u, rs_u)
-                    buffer_X.extend(mX)
-                    buffer_R.extend(mR)
-                    buffer_AX.extend(mAX)
+                    #buffer_X.extend(mX)
+                    #buffer_R.extend(mR)
+                    #buffer_AX.extend(mAX)
                 break
             obser = env.specify_env(low_agent_status, put_card_status, low_role)
             xs_l.append(copy.deepcopy(obser))
@@ -234,15 +234,15 @@ class AgentCore(object):
                 if len(xs_l) >= self.window:
                     #rs_l = list(map(lambda x:x+1,rs_l))
                     mX, mR, mAX = self.obtain_sample(sess, xs_l, vs_l, rs_l)
-                    buffer_X.extend(mX)
-                    buffer_R.extend(mR)
-                    buffer_AX.extend(mAX)
+                    #buffer_X.extend(mX)
+                    #buffer_R.extend(mR)
+                    #buffer_AX.extend(mAX)
                 if len(xs_u) >= self.window:
                     #rs_u = list(map(lambda x:x+1,rs_u))
                     mX, mR, mAX = self.obtain_sample(sess, xs_u, vs_u, rs_u)
-                    buffer_X.extend(mX)
-                    buffer_R.extend(mR)
-                    buffer_AX.extend(mAX)
+                    #buffer_X.extend(mX)
+                    #buffer_R.extend(mR)
+                    #buffer_AX.extend(mAX)
                 break
             obser = env.specify_env(up_agent_status, put_card_status, up_role)
             xs_u.append(copy.deepcopy(obser))
@@ -297,17 +297,17 @@ class AgentCore(object):
                     buffer_AX.extend(mAX)
                 if len(xs_l) >= self.window:
                     #rs_l = list(map(lambda x:x+1,rs_l))
-                    rs_l[-1] = rs_l[-1] + 10
+                    #rs_l[-1] = rs_l[-1] + 10
                     mX, mR, mAX = self.obtain_sample(sess, xs_l, vs_l, rs_l)
-                    buffer_X.extend(mX)
-                    buffer_R.extend(mR)
-                    buffer_AX.extend(mAX)
+                    #buffer_X.extend(mX)
+                    #buffer_R.extend(mR)
+                    #buffer_AX.extend(mAX)
                 if len(xs_u) >= self.window:
-                    rs_u = list(map(lambda x:x+1,rs_u))
+                    #rs_u = list(map(lambda x:x+1,rs_u))
                     mX, mR, mAX = self.obtain_sample(sess, xs_u, vs_u, rs_u)
-                    buffer_X.extend(mX)
-                    buffer_R.extend(mR)
-                    buffer_AX.extend(mAX)
+                    #buffer_X.extend(mX)
+                    #buffer_R.extend(mR)
+                    #buffer_AX.extend(mAX)
                 break
         
         #X = sess.run(tf.nn.l2_normalize(X, axis = 0))
@@ -444,5 +444,5 @@ class AgentCore(object):
 
 if __name__ == '__main__':
     agent = AgentCore(n_input=config.N_INPUT, n_output=config.N_OUTPUT)
-    agent.start_train()
-    #agent.predict()
+    #agent.start_train()
+    agent.predict()
