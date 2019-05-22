@@ -3,7 +3,7 @@
 """
 所能观察的信息类
 """
-class Obser():
+class Surround():
     def __init__(self):
         # 已出的牌
         self._has_put_card_status = [0]*18

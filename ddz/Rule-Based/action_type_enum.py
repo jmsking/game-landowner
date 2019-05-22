@@ -58,3 +58,11 @@ class ActionTypeEnum(Enum):
     ACTION_PUT_BOMB = 25
     # 不出
     ACTION_NO_PUT = 26
+
+ALL_ACTION = []
+for item in ActionTypeEnum:
+    if item not in [ActionTypeEnum.ACTION_DEFAULT, ActionTypeEnum.ACTION_NO_PUT]:
+        ALL_ACTION.append(item.value)
+
+if __name__ == "__main__":
+    print(ALL_ACTION)

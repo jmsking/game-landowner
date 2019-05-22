@@ -1,17 +1,9 @@
 #! /usr/bin/env python3
 
-from __future__ import absolute_import
+from __future__ import absolute_import, print_function, division
 
-import random
-from hand_card_utils import HandCardUtils
-from card_type_enum import CardTypeEnum
-from action_type_enum import ActionTypeEnum
-from card_enum import CardEnum
 import config
-import numpy as np
-import copy
-import all_card
-from player_role_enum import PlayerRoleEnum
+from action_calc_map import ACTION_CALC_DICT
 
 ENV_DEBUG = config.ENV_DEBUG
 
@@ -32,13 +24,29 @@ class Env(object):
         self.observation.extend(self.hand_card_status)
         self.observation.extend(self.put_card_status)
 
+        self.pre_hand_card_status = copy.deepcopy(self.hand_card_status)
+        self.pre_put_card_status = copy.deepcopy(self.put_card_status)
+        self.pre_observation = copy.deepcopy(self.observation)
+
+    def restore(self):
+        self.hand_card_status = copy.deepcopy(self.pre_hand_card_status)
+        self.put_card_status = copy.deepcopy(self.pre_put_card_status)
+        self.observation = copy.deepcopy(self.pre_observation)
+
     def step(self, action, last_player_role = None, primary_item = None, last_action = None):
+
+        self.pre_hand_card_status = copy.deepcopy(self.hand_card_status)
+        self.pre_put_card_status = copy.deepcopy(self.put_card_status)
+        self.pre_observation = copy.deepcopy(self.observation)
+
         score = 0
-        ERR_CARD_SCORE = 0
         done = False
         info = {'error:':False, 'put_card':[], 'primary_item':None}
         if ENV_DEBUG:
             print('Action: {}'.format(action))
+        value_calculator = ACTION_CALC_DICT.get(action, None)
+        if value_calculator is None:
+            return
         # 单牌
         if action == ActionTypeEnum.ACTION_PUT_ONE.value:
             exist_card = list(map(lambda x:x[0], filter(lambda x: x[1] >= 1, enumerate(self.hand_card_status))))
