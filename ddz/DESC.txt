@@ -1,6 +1,17 @@
 1、deep Q-learning =》 计算最佳收益
 2、(4层)神经网络 =》 解决打牌组合
+3、一个模型训练 1000 次
+4、单智能体
+
+
+基于强化学习，其中通过Q-learning进行自我学习，由于扑克牌的状态空间比较大，所以
+并没有使用传统Q-learning使用表格记录状态的方式，而是使用一个四层Feedforward网络进行训练，
+由于单个网络会使网络训练过程不收敛，所以增加了一个辅助网络用来产生目标输出，目前是基于单智能进行学习，
+模型会有一些策略上的不足，后期会修改为多智能体强化学习以便获取更好的策略
+后期完成多智能体强化模型后，会采用增量学习的方式，使得模型产生的策略逐步趋优
 
 
 
 /anaconda3/bin/python /Users/Greason/Documents/workspace_github_company/game-landowner/ddz/V2.0.3/game_main.py
+
+
