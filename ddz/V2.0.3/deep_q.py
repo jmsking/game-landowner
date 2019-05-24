@@ -444,5 +444,5 @@ class AgentCore(object):
 
 if __name__ == '__main__':
     agent = AgentCore(n_input=config.N_INPUT, n_output=config.N_OUTPUT)
-    agent.start_train()
-    #agent.predict()
+    #agent.start_train()
+    agent.predict()
