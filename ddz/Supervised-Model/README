@@ -1,0 +1,25 @@
+本代码源于论文：A SOLUTION TO CHINA COMPETITIVE POKER USING DEEP LEARNING
+链接地址：https://pdfs.semanticscholar.org/2511/a0fc4d6f133bc2ba529f7301740dea4e925c.pdf
+
+论文共三个模块：
+1. Bid Module: 游戏开始阶段叫分模块
+2. Policy Network: 策略网络,生成可出牌型
+3. Kicker Network: 生成完整牌型
+
+Ex.
+通过Policy Network生成当前需出牌型: 333,444
+然后通过Kicker Network生成Kicker: 5,9
+从而组成了完整的出牌牌型: 333,444,5,9
+
+I. Bid Module
+目前基于规则实现叫分
+
+II. Policy Network
+    1. Net Structure: Conv(10)-Full(1)
+    2. Activation Func: Relu
+    3. Output Layer: Softmax Layer
+    4. Input Shape: 15*19*21
+        X-axis: 表征玩家手牌状态    Ex. [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1] 表示手牌为[3,B], B(大王)
+        Y-axis: 表征玩家每张牌的个数 (from 0-4) + 
+        Z-axis: 取最后6轮
+    5. Output Shape: 309
