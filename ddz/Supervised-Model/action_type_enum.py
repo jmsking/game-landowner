@@ -11,13 +11,16 @@ class ActionTypeEnum(Enum):
     ACTION_PUT_THREE = '三不带'
     ACTION_PUT_THREE_ONE = '三带一'
     ACTION_PUT_THREE_DOU = '三带一对'
+
     ACTION_PUT_3_DOU = '三连对'
     ACTION_PUT_4_DOU = '四连对'
     ACTION_PUT_5_DOU = '五连对'
     ACTION_PUT_6_DOU = '六连对'
     ACTION_PUT_7_DOU = '七连对'
     ACTION_PUT_8_DOU = '八连对'
-    # 
+    ACTION_PUT_9_DOU = '九连对'
+    ACTION_PUT_10_DOU = '十连对'
+    
     ACTION_PUT_2_THREE = '两连三不带'
     # 
     ACTION_PUT_3_THREE = '三连三不带'
