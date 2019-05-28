@@ -37,7 +37,6 @@ for card_item in ALL_UNIQUE_CARD:
 # Remove '2', 'S', 'B'
 all_card_tmp = ALL_UNIQUE_CARD[:-3]
 for card_count in range(5, 13, 1):
-    print(card_count)
     action_type = ActionTypeEnum.ACTION_PUT_5_CONTINUE
     if card_count == 6:
         action_type = ActionTypeEnum.ACTION_PUT_6_CONTINUE
@@ -98,6 +97,136 @@ for card_count in range(3, 11, 1):
                             card_comb)
         k += 1
 
+# trio - kicker(No) - chain(No) - cardTypeStruct - card
+# quantity(13)
+# Remove 'S', 'B'
+for card_item in ALL_UNIQUE_CARD[:-2]:
+    ACTION_DICT[k] = (Primal.TRIO, False, False, 
+                        CardTypeStruct(ActionTypeEnum.ACTION_PUT_THREE, 3, card_item),
+                        [card_item, card_item, card_item])
+    k += 1
+
+# trio - kicker(No) - chain(Yes) - cardTypeStruct - card
+# quantity(45)
+# Remove '2', 'S', 'B'
+for card_count in range(2, 7, 1):
+    action_type = ActionTypeEnum.ACTION_PUT_2_THREE
+    if card_count == 3:
+        action_type = ActionTypeEnum.ACTION_PUT_3_THREE
+    elif card_count == 4:
+        action_type = ActionTypeEnum.ACTION_PUT_4_THREE
+    elif card_count == 5:
+        action_type = ActionTypeEnum.ACTION_PUT_5_THREE
+    elif card_count == 6:
+        action_type = ActionTypeEnum.ACTION_PUT_6_THREE
+    for ind in range(len(all_card_tmp)-card_count + 1):
+        card = all_card_tmp[ind:ind+card_count]
+        card_comb = list()
+        for item in card:
+            card_comb.extend([item, item, item])
+        ACTION_DICT[k] = (Primal.TRIO, False, True, 
+                            CardTypeStruct(action_type, card_count*3, card[-1]),
+                            card_comb)
+        k += 1
+
+# trio - kicker(Yes) - chain(No) - cardTypeStruct - card
+# quantity(13)
+# Remove 'S', 'B'
+for card_item in ALL_UNIQUE_CARD[:-2]:
+    ACTION_DICT[k] = (Primal.TRIO, True, False, 
+                        CardTypeStruct(ActionTypeEnum.ACTION_PUT_THREE_ONE, 4, card_item),
+                        [card_item, card_item, card_item])
+    k += 1
+
+# trio - kicker(Yes) - chain(Yes) - cardTypeStruct - card
+# quantity(38)
+# Remove '2', 'S', 'B'
+for card_count in range(2, 6, 1):
+    action_type = ActionTypeEnum.ACTION_PUT_2_THREE_ONE
+    if card_count == 3:
+        action_type = ActionTypeEnum.ACTION_PUT_3_THREE_ONE
+    elif card_count == 4:
+        action_type = ActionTypeEnum.ACTION_PUT_4_THREE_ONE
+    elif card_count == 5:
+        action_type = ActionTypeEnum.ACTION_PUT_5_THREE_ONE
+    for ind in range(len(all_card_tmp)-card_count + 1):
+        card = all_card_tmp[ind:ind+card_count]
+        card_comb = list()
+        for item in card:
+            card_comb.extend([item, item, item])
+        ACTION_DICT[k] = (Primal.TRIO, True, True, 
+                            CardTypeStruct(action_type, card_count*3 + card_count, card[-1]),
+                            card_comb)
+        k += 1
+
+# trio - kicker(Yes) - chain(No) - cardTypeStruct - card
+# quantity(13)
+# Remove 'S', 'B'
+for card_item in ALL_UNIQUE_CARD[:-2]:
+    ACTION_DICT[k] = (Primal.TRIO, True, False, 
+                        CardTypeStruct(ActionTypeEnum.ACTION_PUT_THREE_DOU, 5, card_item),
+                        [card_item, card_item, card_item])
+    k += 1
+
+# trio - kicker(Yes) - chain(Yes) - cardTypeStruct - card
+# quantity(30)
+# Remove '2', 'S', 'B'
+for card_count in range(2, 5, 1):
+    action_type = ActionTypeEnum.ACTION_PUT_2_THREE_DOU
+    if card_count == 3:
+        action_type = ActionTypeEnum.ACTION_PUT_3_THREE_DOU
+    elif card_count == 4:
+        action_type = ActionTypeEnum.ACTION_PUT_4_THREE_DOU
+    for ind in range(len(all_card_tmp)-card_count + 1):
+        card = all_card_tmp[ind:ind+card_count]
+        card_comb = list()
+        for item in card:
+            card_comb.extend([item, item, item])
+        ACTION_DICT[k] = (Primal.TRIO, True, True, 
+                            CardTypeStruct(action_type, card_count*3 + card_count*2, card[-1]),
+                            card_comb)
+        k += 1
+
+# four - kicker(Yes) - chain(No) - cardTypeStruct - card
+# quantity(13)
+# Remove 'S', 'B'
+for card_item in ALL_UNIQUE_CARD[:-2]:
+    ACTION_DICT[k] = (Primal.TRIO, True, False, 
+                        CardTypeStruct(ActionTypeEnum.ACTION_PUT_FOUR_ONE, 6, card_item),
+                        [card_item, card_item, card_item, card_item])
+    k += 1
+
+# four - kicker(Yes) - chain(No) - cardTypeStruct - card
+# quantity(13)
+# Remove 'S', 'B'
+for card_item in ALL_UNIQUE_CARD[:-2]:
+    ACTION_DICT[k] = (Primal.TRIO, True, False, 
+                        CardTypeStruct(ActionTypeEnum.ACTION_PUT_FOUR_DOU, 8, card_item),
+                        [card_item, card_item, card_item, card_item])
+    k += 1
+
+# bomb - kicker(No) - chain(No) - cardTypeStruct - card
+# quantity(13)
+# Remove 'S', 'B'
+for card_item in ALL_UNIQUE_CARD[:-2]:
+    ACTION_DICT[k] = (Primal.BOMB, False, False, 
+                        CardTypeStruct(ActionTypeEnum.ACTION_PUT_BOMB, 4, card_item),
+                        [card_item, card_item, card_item, card_item])
+    k += 1
+
+# rocket - kicker(No) - chain(No) - cardTypeStruct - card
+# quantity(1)
+ACTION_DICT[k] = (Primal.BOMB, False, False, 
+                        CardTypeStruct(ActionTypeEnum.ACTION_PUT_BOMB, 2, ALL_UNIQUE_CARD[-1]),
+                        ALL_UNIQUE_CARD[-2:])
+k += 1
+
+# pass - kicker(No) - chain(No) - cardTypeStruct - card
+# quantity(1)
+ACTION_DICT[k] = (Primal.PASS, False, False, 
+                        CardTypeStruct(ActionTypeEnum.ACTION_NO_PUT, 0, None), ['PASS'])
+
+k += 1
 
 if __name__ == "__main__":
     #print(k)

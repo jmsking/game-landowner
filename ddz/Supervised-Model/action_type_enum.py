@@ -22,16 +22,20 @@ class ActionTypeEnum(Enum):
     ACTION_PUT_10_DOU = '十连对'
     
     ACTION_PUT_2_THREE = '两连三不带'
-    # 
     ACTION_PUT_3_THREE = '三连三不带'
-    # 
+    ACTION_PUT_4_THREE = '四连三不带'
+    ACTION_PUT_5_THREE = '五连三不带'
+    ACTION_PUT_6_THREE = '六连三不带'
+
     ACTION_PUT_2_THREE_ONE = '两连三带一'
-    # 
     ACTION_PUT_3_THREE_ONE = '三连三带一'
-    # 
+    ACTION_PUT_4_THREE_ONE = '四连三带一'
+    ACTION_PUT_5_THREE_ONE = '五连三带一'
+
     ACTION_PUT_2_THREE_DOU = '两连三带一对'
-    # 
     ACTION_PUT_3_THREE_DOU = '三连三带一对'
+    ACTION_PUT_4_THREE_DOU = '四连三带一对'
+    
     ACTION_PUT_FOUR_ONE = '四带二单'
     ACTION_PUT_FOUR_DOU = '四带二对'
 
