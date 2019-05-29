@@ -50,3 +50,10 @@ class ActionTypeEnum(Enum):
 
     ACTION_PUT_BOMB = '炸弹'
     ACTION_NO_PUT = '不出'
+
+ALL_ACTION_TYPE =  list()
+for act in ActionTypeEnum:
+    ALL_ACTION_TYPE.append(act.value)
+
+if __name__ == "__main__":
+    print(ALL_ACTION_TYPE)

@@ -2,6 +2,10 @@
 
 from all_card import ALL_CARD_NO_COLOR
 import random
+from action_type_enum import ActionTypeEnum, ALL_ACTION_TYPE
+from env import Env
+from hand_card_utils import HandCardUtils
+import numpy as np
 
 """
 Deal Card
@@ -15,88 +19,104 @@ def _deal_card(c):
         return ALL_CARD_NO_COLOR[34:51]
     else:
         return ALL_CARD_NO_COLOR[51:]
+"""
+Obtain initialized status
+"""
+def _obtain_init_status(cards1, cards2, cards3, bottom_cards):
+    card1 = ''.join(cards1)
+    card2 = ''.join(cards2)
+    card3 = ''.join(cards3)
+    bcards = ''.join(bottom_cards)
+    cards = "cards: " + card1 + ";" + card2 + ";" + card3 + ";" + bcards
+    return cards
+
+def _gen_agent(cards1, cards2, cards3):
+    main_agent_status = HandCardUtils.obtain_hand_card_status(cards1)
+    low_agent_status = HandCardUtils.obtain_hand_card_status(cards2)
+    up_agent_status = HandCardUtils.obtain_hand_card_status(cards3)
+    return main_agent_status, low_agent_status, up_agent_status
+
 
 """
 Sample Generator
 """
 def generate_data():
     random.shuffle(ALL_CARD_NO_COLOR)
-    player_1 = _deal_card(1)
-    player_2 = _deal_card(2)
-    player_3 = _deal_card(3)
-    bottom_card = _deal_card(0)
-    xs_o, vs_o, rs_o = list(), list(), list()
-    xs_l, vs_l, rs_l = list(), list(), list()
-    xs_u, vs_u, rs_u = list(), list(), list()
-    main_agent_status, low_agent_status, up_agent_status = self._gen_agent()
+    player_cards_1 = _deal_card(1)
+    player_cards_2 = _deal_card(2)
+    player_cards_3 = _deal_card(3)
+    bottom_cards = _deal_card(0)
+    cards = _obtain_init_status(player_cards_1, player_cards_2, player_cards_3, bottom_cards)
+    print(cards)
+
+    card_process = list()
+
+    main_agent_status, low_agent_status, up_agent_status = _gen_agent(player_cards_1, player_cards_2, player_cards_3)
     env = Env()
     put_card_status = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
-    main_role = PlayerRoleEnum.LAND_OWNER
-    low_role = PlayerRoleEnum.LOW_LAND_OWNER
-    up_role = PlayerRoleEnum.UP_LAND_OWNER
     last_action = None
     curr_flag = "o" # 'o', 'l', 'u'
     while True:
-        obser = env.specify_env(main_agent_status, put_card_status, main_role)
-        xs_o.append(copy.deepcopy(obser))
-        action = ActionTypeEnum.ACTION_DEFAULT.value
+        obser = env.specify_env(main_agent_status, put_card_status)
+        action = ActionTypeEnum.ACTION_NO_PUT.value
         if last_action and curr_flag != 'o':
             while True:
                 action = np.random.choice(
                     [last_action, 
                     ActionTypeEnum.ACTION_PUT_BOMB.value, 
                     ActionTypeEnum.ACTION_NO_PUT.value], 1)[0]
-                obser, reward, done, info = env.step(action)
+                _, done, info = env.step(action)
                 err = info['error']
                 if not err:
                     env.restore()
                     break
                 env.restore() 
-            else:
-                while True:
-                    #agent_card_status = self._get_next_agent_status(env.hand_card_status, env.put_card_status)
-                    action = np.random.randint(0,self.n_action-1)
-                    #card_count = sum(env.hand_card_status)
-                    obser, reward, done, info = env.step(action)
-                    err = info['error']
-                    if not err:
-                        env.restore()
-                        break
+        else:
+            while True:
+                size = len(ALL_ACTION_TYPE)
+                rnd = np.random.randint(size)
+                action = ALL_ACTION_TYPE[rnd]
+                if action == ActionTypeEnum.ACTION_NO_PUT.value:
+                    continue
+                _, done, info = env.step(action)
+                err = info['error']
+                if not err:
                     env.restore()
-            # reward decay of up_agent
-            if last_action and action not in [ActionTypeEnum.ACTION_NO_PUT.value, ActionTypeEnum.ACTION_PUT_BOMB.value]:
-                rs_u[-1] -= 0.1
-            if action != ActionTypeEnum.ACTION_NO_PUT.value:
-                curr_flag = 'o'
-                last_action = action
-            obser, reward, done, info = env.step(action)
-            main_agent_status = env.hand_card_status
-            put_card_status = env.put_card_status
-            vs_o.append(action)
+                    break
+                env.restore()
+        if action != ActionTypeEnum.ACTION_NO_PUT.value:
+            curr_flag = 'o'
             last_action = action
-            rs_o.append(reward)
-            if done:
-                if len(xs_o) >= self.window:
-                    #rs_o = list(map(lambda x:x+1,rs_o))
-                    
-                    mX, mR, mAX = self.obtain_sample(sess, xs_o, vs_o, rs_o)
-                    buffer_X.extend(mX)
-                    buffer_R.extend(mR)
-                    buffer_AX.extend(mAX)
-                if len(xs_l) >= self.window:
-                    #rs_l = list(map(lambda x:x-1,rs_l))
-                    mX, mR, mAX = self.obtain_sample(sess, xs_l, vs_l, rs_l)
-                    #buffer_X.extend(mX)
-                    #buffer_R.extend(mR)
-                    #buffer_AX.extend(mAX)
-                if len(xs_u) >= self.window:
-                    #rs_u = list(map(lambda x:x-1,rs_u))
-                    #rs_u[-1] = rs_u[-1] - 10
-                    mX, mR, mAX = self.obtain_sample(sess, xs_u, vs_u, rs_u)
-                    #buffer_X.extend(mX)
-                    #buffer_R.extend(mR)
-                    #buffer_AX.extend(mAX)
-                break
+        _, done, info = env.step(action)
+        put_card = info['put_card']
+        if put_card:
+            put_card = ''.join(put_card)
+        card_process.append("0," + put_card)
+        main_agent_status = env.hand_card_status
+        put_card_status = env.put_card_status
+        last_action = action
+        if done:
+            if len(xs_o) >= self.window:
+                #rs_o = list(map(lambda x:x+1,rs_o))
+                
+                mX, mR, mAX = self.obtain_sample(sess, xs_o, vs_o, rs_o)
+                buffer_X.extend(mX)
+                buffer_R.extend(mR)
+                buffer_AX.extend(mAX)
+            if len(xs_l) >= self.window:
+                #rs_l = list(map(lambda x:x-1,rs_l))
+                mX, mR, mAX = self.obtain_sample(sess, xs_l, vs_l, rs_l)
+                #buffer_X.extend(mX)
+                #buffer_R.extend(mR)
+                #buffer_AX.extend(mAX)
+            if len(xs_u) >= self.window:
+                #rs_u = list(map(lambda x:x-1,rs_u))
+                #rs_u[-1] = rs_u[-1] - 10
+                mX, mR, mAX = self.obtain_sample(sess, xs_u, vs_u, rs_u)
+                #buffer_X.extend(mX)
+                #buffer_R.extend(mR)
+                #buffer_AX.extend(mAX)
+            break
             obser = env.specify_env(low_agent_status, put_card_status, low_role)
             xs_l.append(copy.deepcopy(obser))
             action = ActionTypeEnum.ACTION_DEFAULT.value
