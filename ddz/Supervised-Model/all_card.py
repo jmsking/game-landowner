@@ -22,6 +22,14 @@ ALL_UNIQUE_CARD = list()
 for card_item in CardEnum:
     ALL_UNIQUE_CARD.append(card_item.value)
 
+CARD_MAP = {
+    '3':3, '4':4, '5':5, '6':6, '7':7, '8':8, '9':9,
+    'T':10, 'J':11, 'Q':12, 'K':13, 'A':14, '2': 15, 'S': 16, 'B': 17
+    }
+REV_CARD_MAP = dict()
+for k, v in CARD_MAP.items():
+    REV_CARD_MAP[v] = k
+
 
 if __name__  == '__main__':
     #random.shuffle(ALL_CARD)

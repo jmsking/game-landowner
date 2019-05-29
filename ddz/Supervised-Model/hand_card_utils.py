@@ -5,6 +5,7 @@ from card_enum import CardEnum
 import random
 import config
 from action_type_enum import ActionTypeEnum
+from all_card import CARD_MAP
 
 class HandCardUtils(object):
 
@@ -14,7 +15,7 @@ class HandCardUtils(object):
     def obtain_hand_card_status(hand_card_seq):
         hand_card_status = [0 for _ in range(18)]
         for item in hand_card_seq:
-            hand_card_status[item] += 1
+            hand_card_status[CARD_MAP[item]] += 1
         return hand_card_status
 
     """ 查找k连对(返回最大值)
