@@ -57,7 +57,7 @@ def generate_data():
     last_action = None
     last_primary = None
     curr_flag = "o" # 'o', 'l', 'u'
-    while True:
+    while False:
         obser = env.specify_env(main_agent_status, put_card_status)
         action = ActionTypeEnum.ACTION_NO_PUT.value
         if last_action and curr_flag != 'o':
