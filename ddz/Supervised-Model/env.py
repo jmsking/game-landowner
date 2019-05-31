@@ -1160,6 +1160,7 @@ class Env(object):
                     self.observation[18+put_card] += 1
                     self.hand_card_status[put_card] -= 1
                     self.put_card_status[put_card] += 1
+                    put_card = REV_CARD_MAP[put_card]
                     log_put.extend([put_card])
                 info['put_card'] = log_put
                 info['primary_item'] = exist_card[-1]
@@ -1188,6 +1189,7 @@ class Env(object):
                     self.observation[18+put_card] += 1
                     self.hand_card_status[put_card] -= 1
                     self.put_card_status[put_card] += 1
+                    put_card = REV_CARD_MAP[put_card]
                     log_put.extend([put_card])
                 info['put_card'] = log_put
                 info['primary_item'] = exist_card[-1]
@@ -1215,6 +1217,7 @@ class Env(object):
                     self.observation[18+put_card] += 1
                     self.hand_card_status[put_card] -= 1
                     self.put_card_status[put_card] += 1
+                    put_card = REV_CARD_MAP[put_card]
                     log_put.extend([put_card])
                 info['put_card'] = log_put
                 info['primary_item'] = exist_card[-1]
@@ -1242,6 +1245,7 @@ class Env(object):
                     self.observation[18+put_card] += 1
                     self.hand_card_status[put_card] -= 1
                     self.put_card_status[put_card] += 1
+                    put_card = REV_CARD_MAP[put_card]
                     log_put.extend([put_card])
                 info['put_card'] = log_put
                 info['primary_item'] = exist_card[-1]
@@ -1280,7 +1284,7 @@ class Env(object):
                         self.observation[18+item] += 1
                         self.hand_card_status[item] -= 1
                         self.put_card_status[item] += 1
-                    info['put_card'] = put_card
+                    info['put_card'] = list(map(lambda x:REV_CARD_MAP[x], put_card))
                     info['primary_item'] = put_card[-1]
                     if ENV_DEBUG:
                         print('Put card %s,%s' %tuple(put_card))
@@ -1289,6 +1293,7 @@ class Env(object):
                     self.observation[18+put_card] += 4
                     self.hand_card_status[put_card] -= 4
                     self.put_card_status[put_card] += 4
+                    put_card = REV_CARD_MAP[put_card]
                     info['put_card'] = [put_card,put_card,put_card,put_card]
                     info['primary_item'] = put_card
                     if ENV_DEBUG:
