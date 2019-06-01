@@ -28,7 +28,7 @@ def _obtain_init_status(cards1, cards2, cards3, bottom_cards):
     card2 = ''.join(cards2)
     card3 = ''.join(cards3)
     bcards = ''.join(bottom_cards)
-    cards = "cards: " + card1 + ";" + card2 + ";" + card3 + ";" + bcards
+    cards = card1 + ";" + card2 + ";" + card3 + ";" + bcards
     return cards
 
 def _gen_agent(cards1, cards2, cards3):
@@ -207,5 +207,8 @@ def generate_data():
     return cards, card_process
 
 if __name__ == "__main__":
-    data = generate_data()
-    print(data)
+    cards, card_process = generate_data()
+    print(cards)
+    print(card_process)
+    card_process = ";".join(card_process)
+    HandCardUtils.write_to_file(cards, card_process)

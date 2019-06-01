@@ -9,6 +9,14 @@ from all_card import CARD_MAP
 
 class HandCardUtils(object):
 
+    @staticmethod
+    def write_to_file(*data, to_path = config.SAMPLE_SAVE_PATH):
+        with open(to_path, 'w') as f:
+            f.write(config.ROUND_FLAG_1+data[0])
+            f.write('\n')
+            f.write(config.ROUND_FLAG_2+data[1])
+            f.write('\n')
+
     """ 根据手牌计算得到手牌状态
     """
     @staticmethod
