@@ -13,7 +13,7 @@ SAMPLE_SAVE_PATH = PARENT_PATH + 'sample.txt'
 # deep-q net input-output setting
 N_INPUT = 33
 N_OUTPUT = 1
-N_ACTION = 27
+N_ACTION = 37
 # whether genenate sample file or not
 GEN_SAMPLE_FILE = False
 # reward ration

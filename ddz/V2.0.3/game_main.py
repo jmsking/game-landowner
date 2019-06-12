@@ -313,15 +313,6 @@ class GameMain(object):
             else:
                 print('Game running error')
                 return
-        #self._bottom_card = self.deal_card(0)
-        #print('三张底牌为 %s' %self._bottom_card)
-        #land_hand_card = self.deal_card(land_rnd+1)
-        #land_hand_card += self._bottom_card
-        #land_hcs = HandCardStruct()
-        #land_hcs.hand_card_color_seq = land_hand_card
-        #land_player = self._players[self._land_owner_id]
-        #land_player.hand_card_struct = land_hcs
-        #print('地主[ID=%s]的手牌为\n%s' %(land_player.player_id, land_hcs.hand_card_seq))
 
     def set_game_env(self):
         # 第一个玩家是第二个玩家的上家
@@ -454,8 +445,8 @@ class GameMain(object):
     def put_card_process(self, sess, env, curr_player_id, net_out, last_card_type_struct=None, last_action=None):
         curr_player = self._players[curr_player_id]
         print('玩家[ID=%s ROLE=%s]当前手牌: %s' %(curr_player_id, self.get_player_role_title(curr_player_id), curr_player.hand_card_struct.hand_card_seq))
-        #if curr_player_id == None:
-        if curr_player_id == human_player_id:
+        if curr_player_id == None:
+        #if curr_player_id == human_player_id:
             while True:
                 input_card = input('请玩家[ID=%s]出牌(多张牌以空格分隔)' %(curr_player_id))
                 if len(input_card) == 0 and last_action is not None:
@@ -504,7 +495,7 @@ class GameMain(object):
                 else:
                     print('所出牌型不合理')    
         action_reward = list()
-        n_action = 27
+        n_action = config.N_ACTION
         n_input = config.N_INPUT
         hcs = curr_player.hand_card_struct
         hand_card_status = hcs.hand_card_status
@@ -554,8 +545,8 @@ class GameMain(object):
     """ 开始游戏
     """
     def game_start(self):
-        #self.set_game_env_test()
-        self.human_agent_battle()
+        self.set_game_env_test()
+        #self.human_agent_battle()
         order_player_ids = self.get_player_order()
         env = Env()
         k = 0

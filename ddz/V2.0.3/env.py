@@ -120,7 +120,7 @@ class Env(object):
 
         score = 0
         ERR_CARD_SCORE = 0
-        done = False
+        is_invalid = False
         info = {'error:':False, 'put_card':[], 'primary_item':None}
         if ENV_DEBUG:
             print('Action: {}'.format(action))
@@ -135,7 +135,7 @@ class Env(object):
                     exist_card = [exist_card]
             if len(exist_card) == 0:
                 score = ERR_CARD_SCORE
-                done = True
+                is_invalid = True
                 if ENV_DEBUG:
                     print('Can not accept the card')
             else:
@@ -148,8 +148,7 @@ class Env(object):
                 self.put_card_status[put_card] += 1
                 info['put_card'] = [put_card]
                 info['primary_item'] = put_card
-                if ENV_DEBUG:
-                    print('Put card %s' %put_card)
+                
         # 对子
         elif action == ActionTypeEnum.ACTION_PUT_DOU.value:
             exist_card = list(map(lambda x:x[0], filter(lambda x: x[1] == 2, enumerate(self.hand_card_status))))
@@ -161,7 +160,7 @@ class Env(object):
                     exist_card = [exist_card]
             if len(exist_card) == 0:
                 score = ERR_CARD_SCORE
-                done = True
+                is_invalid = True
                 if ENV_DEBUG:
                     print('Can not accept the card')
             else:
@@ -174,8 +173,7 @@ class Env(object):
                 self.put_card_status[put_card] += 2
                 info['put_card'] = [put_card,put_card]
                 info['primary_item'] = put_card
-                if ENV_DEBUG:
-                    print('Put card %s,%s' %(put_card,put_card))
+                
         # 三不带
         elif action == ActionTypeEnum.ACTION_PUT_THREE.value:
             exist_card = list(map(lambda x:x[0], filter(lambda x: x[1] == 3, enumerate(self.hand_card_status))))
@@ -187,7 +185,7 @@ class Env(object):
                     exist_card = [exist_card]
             if len(exist_card) == 0:
                 score = ERR_CARD_SCORE
-                done = True
+                is_invalid = True
                 if ENV_DEBUG:
                     print('Can not accept the card')
             else:
@@ -200,8 +198,7 @@ class Env(object):
                 self.put_card_status[put_card] += 3
                 info['put_card'] = [put_card,put_card,put_card]
                 info['primary_item'] = put_card
-                if ENV_DEBUG:
-                    print('Put card %s,%s,%s' %(put_card,put_card,put_card))
+                
         # 三带一
         elif action == ActionTypeEnum.ACTION_PUT_THREE_ONE.value:
             exist_card = list(map(lambda x:x[0], filter(lambda x: x[1] == 3, enumerate(self.hand_card_status)))) 
@@ -213,7 +210,7 @@ class Env(object):
                     exist_card = [exist_card]
             if len(exist_card) == 0:
                 score = ERR_CARD_SCORE
-                done = True
+                is_invalid = True
                 if ENV_DEBUG:
                     print('Can not accept the card')
             else:
@@ -225,7 +222,7 @@ class Env(object):
                     other_exist_card = [other_exist_card]
                 if len(other_exist_card) == 0:
                     score = ERR_CARD_SCORE
-                    done = True
+                    is_invalid = True
                     if ENV_DEBUG:
                         print('Can not accept the card')
                 else:
@@ -242,8 +239,7 @@ class Env(object):
                     self.put_card_status[other_put_card] += 1
                     info['put_card'] = [put_card,put_card,put_card,other_put_card]
                     info['primary_item'] = put_card
-                    if ENV_DEBUG:
-                        print('Put card %s,%s,%s,%s' %(put_card,put_card,put_card,other_put_card))
+                    
         # 三带一对
         elif action == ActionTypeEnum.ACTION_PUT_THREE_DOU.value:
             exist_card = list(map(lambda x:x[0], filter(lambda x: x[1] == 3, enumerate(self.hand_card_status)))) 
@@ -255,7 +251,7 @@ class Env(object):
                     exist_card = [exist_card]
             if len(exist_card) == 0:
                 score = ERR_CARD_SCORE
-                done = True
+                is_invalid = True
                 if ENV_DEBUG:
                     print('Can not accept the card')
             else:
@@ -267,7 +263,7 @@ class Env(object):
                     other_exist_card = [other_exist_card]
                 if len(other_exist_card) == 0:
                     score = ERR_CARD_SCORE
-                    done = True
+                    is_invalid = True
                     if ENV_DEBUG:
                         print('Can not accept the card')
                 else:
@@ -284,37 +280,7 @@ class Env(object):
                     self.put_card_status[other_put_card] += 2
                     info['put_card'] = [put_card,put_card,put_card,other_put_card,other_put_card]
                     info['primary_item'] = put_card
-                    if ENV_DEBUG:
-                        print('Put card %s,%s,%s,%s,%s' %(put_card,put_card,put_card,other_put_card,other_put_card))
-        # 两连对
-        elif action == ActionTypeEnum.ACTION_PUT_2_DOU.value:
-            K = 2
-            exist_card = HandCardUtils.find_even_pair(self.hand_card_status, k=K)
-            if primary_item is not None:
-                exist_card = list(filter(lambda x:x > primary_item,exist_card))
-                if isinstance(exist_card, int):
-                    exist_card = [exist_card]
-            if len(exist_card) == 0:
-                score = ERR_CARD_SCORE
-                done = True
-                if ENV_DEBUG:
-                    print('Can not accept the card')
-            else:
-                rnd = random.randint(0,len(exist_card)-1)
-                put_card = exist_card[rnd]
-                exist_card = [put_card - ix for ix in reversed(range(K))]
-                score = HandCardUtils.value_map(exist_card[-1], CardTypeEnum.CT_DOU, 4)
-                log_put = list()
-                for put_card in exist_card:
-                    self.observation[put_card] -= 2
-                    self.observation[18+put_card] += 2
-                    self.hand_card_status[put_card] -= 2
-                    self.put_card_status[put_card] += 2
-                    log_put.extend([put_card,put_card])
-                info['put_card'] = log_put
-                info['primary_item'] = exist_card[-1]
-                if ENV_DEBUG:
-                    print('Put card %s,%s,%s,%s' %tuple(log_put))
+                    
         # 三连对
         elif action == ActionTypeEnum.ACTION_PUT_3_DOU.value:
             K = 3
@@ -325,7 +291,7 @@ class Env(object):
                     exist_card = [exist_card]
             if len(exist_card) == 0:
                 score = ERR_CARD_SCORE
-                done = True
+                is_invalid = True
                 if ENV_DEBUG:    
                     print('Can not accept the card')
             else:
@@ -342,8 +308,7 @@ class Env(object):
                     log_put.extend([put_card,put_card])
                 info['put_card'] = log_put
                 info['primary_item'] = exist_card[-1]
-                if ENV_DEBUG:
-                    print('Put card %s,%s,%s,%s,%s,%s' %tuple(log_put))
+                
         # 四连对
         elif action == ActionTypeEnum.ACTION_PUT_4_DOU.value:
             K = 4
@@ -354,7 +319,7 @@ class Env(object):
                     exist_card = [exist_card]
             if len(exist_card) == 0:
                 score = ERR_CARD_SCORE
-                done = True
+                is_invalid = True
                 if ENV_DEBUG:
                     print('Can not accept the card')
             else:
@@ -371,8 +336,7 @@ class Env(object):
                     log_put.extend([put_card,put_card])
                 info['put_card'] = log_put
                 info['primary_item'] = exist_card[-1]
-                if ENV_DEBUG:
-                    print('Put card %s,%s,%s,%s,%s,%s,%s,%s' %tuple(log_put))
+                
         # 五连对
         elif action == ActionTypeEnum.ACTION_PUT_5_DOU.value:
             K = 5
@@ -383,7 +347,7 @@ class Env(object):
                     exist_card = [exist_card]
             if len(exist_card) == 0:
                 score = ERR_CARD_SCORE
-                done = True
+                is_invalid = True
                 if ENV_DEBUG:
                     print('Can not accept the card')
             else:
@@ -400,8 +364,142 @@ class Env(object):
                     log_put.extend([put_card,put_card])
                 info['put_card'] = log_put
                 info['primary_item'] = exist_card[-1]
+                
+        # 六连对
+        elif action == ActionTypeEnum.ACTION_PUT_6_DOU.value:
+            K = 6
+            exist_card = HandCardUtils.find_even_pair(self.hand_card_status, k=K)
+            if primary_item is not None:
+                exist_card = list(filter(lambda x:x > primary_item,exist_card))
+                if isinstance(exist_card, int):
+                    exist_card = [exist_card]
+            if len(exist_card) == 0:
+                score = ERR_CARD_SCORE
+                is_invalid = True
                 if ENV_DEBUG:
-                    print('Put card %s,%s,%s,%s,%s,%s,%s,%s,%s,%s' %tuple(log_put))
+                    print('Can not accept the card')
+            else:
+                rnd = random.randint(0,len(exist_card)-1)
+                put_card = exist_card[rnd]
+                exist_card = [put_card - ix for ix in reversed(range(K))]
+                score = HandCardUtils.value_map(exist_card[-1], CardTypeEnum.CT_DOU, 10)
+                log_put = list()
+                for put_card in exist_card:
+                    self.observation[put_card] -= 2
+                    self.observation[18+put_card] += 2
+                    self.hand_card_status[put_card] -= 2
+                    self.put_card_status[put_card] += 2
+                    log_put.extend([put_card,put_card])
+                info['put_card'] = log_put
+                info['primary_item'] = exist_card[-1]
+        # 七连对
+        elif action == ActionTypeEnum.ACTION_PUT_7_DOU.value:
+            K = 7
+            exist_card = HandCardUtils.find_even_pair(self.hand_card_status, k=K)
+            if primary_item is not None:
+                exist_card = list(filter(lambda x:x > primary_item,exist_card))
+                if isinstance(exist_card, int):
+                    exist_card = [exist_card]
+            if len(exist_card) == 0:
+                score = ERR_CARD_SCORE
+                is_invalid = True
+                if ENV_DEBUG:
+                    print('Can not accept the card')
+            else:
+                rnd = random.randint(0,len(exist_card)-1)
+                put_card = exist_card[rnd]
+                exist_card = [put_card - ix for ix in reversed(range(K))]
+                score = HandCardUtils.value_map(exist_card[-1], CardTypeEnum.CT_DOU, 10)
+                log_put = list()
+                for put_card in exist_card:
+                    self.observation[put_card] -= 2
+                    self.observation[18+put_card] += 2
+                    self.hand_card_status[put_card] -= 2
+                    self.put_card_status[put_card] += 2
+                    log_put.extend([put_card,put_card])
+                info['put_card'] = log_put
+                info['primary_item'] = exist_card[-1]
+        # 八连对
+        elif action == ActionTypeEnum.ACTION_PUT_8_DOU.value:
+            K = 8
+            exist_card = HandCardUtils.find_even_pair(self.hand_card_status, k=K)
+            if primary_item is not None:
+                exist_card = list(filter(lambda x:x > primary_item,exist_card))
+                if isinstance(exist_card, int):
+                    exist_card = [exist_card]
+            if len(exist_card) == 0:
+                score = ERR_CARD_SCORE
+                is_invalid = True
+                if ENV_DEBUG:
+                    print('Can not accept the card')
+            else:
+                rnd = random.randint(0,len(exist_card)-1)
+                put_card = exist_card[rnd]
+                exist_card = [put_card - ix for ix in reversed(range(K))]
+                score = HandCardUtils.value_map(exist_card[-1], CardTypeEnum.CT_DOU, 10)
+                log_put = list()
+                for put_card in exist_card:
+                    self.observation[put_card] -= 2
+                    self.observation[18+put_card] += 2
+                    self.hand_card_status[put_card] -= 2
+                    self.put_card_status[put_card] += 2
+                    log_put.extend([put_card,put_card])
+                info['put_card'] = log_put
+                info['primary_item'] = exist_card[-1]
+        # 九连对
+        elif action == ActionTypeEnum.ACTION_PUT_9_DOU.value:
+            K = 9
+            exist_card = HandCardUtils.find_even_pair(self.hand_card_status, k=K)
+            if primary_item is not None:
+                exist_card = list(filter(lambda x:x > primary_item,exist_card))
+                if isinstance(exist_card, int):
+                    exist_card = [exist_card]
+            if len(exist_card) == 0:
+                score = ERR_CARD_SCORE
+                is_invalid = True
+                if ENV_DEBUG:
+                    print('Can not accept the card')
+            else:
+                rnd = random.randint(0,len(exist_card)-1)
+                put_card = exist_card[rnd]
+                exist_card = [put_card - ix for ix in reversed(range(K))]
+                score = HandCardUtils.value_map(exist_card[-1], CardTypeEnum.CT_DOU, 10)
+                log_put = list()
+                for put_card in exist_card:
+                    self.observation[put_card] -= 2
+                    self.observation[18+put_card] += 2
+                    self.hand_card_status[put_card] -= 2
+                    self.put_card_status[put_card] += 2
+                    log_put.extend([put_card,put_card])
+                info['put_card'] = log_put
+                info['primary_item'] = exist_card[-1]
+        # 十连对
+        elif action == ActionTypeEnum.ACTION_PUT_10_DOU.value:
+            K = 10
+            exist_card = HandCardUtils.find_even_pair(self.hand_card_status, k=K)
+            if primary_item is not None:
+                exist_card = list(filter(lambda x:x > primary_item,exist_card))
+                if isinstance(exist_card, int):
+                    exist_card = [exist_card]
+            if len(exist_card) == 0:
+                score = ERR_CARD_SCORE
+                is_invalid = True
+                if ENV_DEBUG:
+                    print('Can not accept the card')
+            else:
+                rnd = random.randint(0,len(exist_card)-1)
+                put_card = exist_card[rnd]
+                exist_card = [put_card - ix for ix in reversed(range(K))]
+                score = HandCardUtils.value_map(exist_card[-1], CardTypeEnum.CT_DOU, 10)
+                log_put = list()
+                for put_card in exist_card:
+                    self.observation[put_card] -= 2
+                    self.observation[18+put_card] += 2
+                    self.hand_card_status[put_card] -= 2
+                    self.put_card_status[put_card] += 2
+                    log_put.extend([put_card,put_card])
+                info['put_card'] = log_put
+                info['primary_item'] = exist_card[-1]
         # 两连三不带
         elif action == ActionTypeEnum.ACTION_PUT_2_THREE.value:
             K = 2
@@ -412,7 +510,7 @@ class Env(object):
                     exist_card = [exist_card]
             if len(exist_card) == 0:
                 score = ERR_CARD_SCORE
-                done = True
+                is_invalid = True
                 if ENV_DEBUG:
                     print('Can not accept the card')
             else:
@@ -429,8 +527,7 @@ class Env(object):
                     log_put.extend([put_card,put_card,put_card])
                 info['put_card'] = log_put
                 info['primary_item'] = exist_card[-1]
-                if ENV_DEBUG:
-                    print('Put card %s,%s,%s,%s,%s,%s' %tuple(log_put))
+                
         # 三连三不带
         elif action == ActionTypeEnum.ACTION_PUT_3_THREE.value:
             K = 3
@@ -441,7 +538,7 @@ class Env(object):
                     exist_card = [exist_card]
             if len(exist_card) == 0:
                 score = ERR_CARD_SCORE
-                done = True
+                is_invalid = True
                 if ENV_DEBUG:
                     print('Can not accept the card')
             else:
@@ -458,8 +555,87 @@ class Env(object):
                     log_put.extend([put_card,put_card,put_card])
                 info['put_card'] = log_put
                 info['primary_item'] = exist_card[-1]
+        # 四连三不带
+        elif action == ActionTypeEnum.ACTION_PUT_4_THREE.value:
+            K = 3
+            exist_card = HandCardUtils.find_even_three(self.hand_card_status, k=K)
+            if primary_item is not None:
+                exist_card = list(filter(lambda x:x > primary_item,exist_card))
+                if isinstance(exist_card, int):
+                    exist_card = [exist_card]
+            if len(exist_card) == 0:
+                score = ERR_CARD_SCORE
+                is_invalid = True
                 if ENV_DEBUG:
-                    print('Put card %s,%s,%s,%s,%s,%s,%s,%s,%s' %tuple(log_put))
+                    print('Can not accept the card')
+            else:
+                rnd = random.randint(0,len(exist_card)-1)
+                put_card = exist_card[rnd]
+                exist_card = [put_card - ix for ix in reversed(range(K))]
+                score = HandCardUtils.value_map(exist_card[-1], CardTypeEnum.CT_THREE, 9)
+                log_put = list()
+                for put_card in exist_card:
+                    self.observation[put_card] -= 3
+                    self.observation[18+put_card] += 3
+                    self.hand_card_status[put_card] -= 3
+                    self.put_card_status[put_card] += 3
+                    log_put.extend([put_card,put_card,put_card])
+                info['put_card'] = log_put
+                info['primary_item'] = exist_card[-1]
+        # 五连三不带
+        elif action == ActionTypeEnum.ACTION_PUT_5_THREE.value:
+            K = 5
+            exist_card = HandCardUtils.find_even_three(self.hand_card_status, k=K)
+            if primary_item is not None:
+                exist_card = list(filter(lambda x:x > primary_item,exist_card))
+                if isinstance(exist_card, int):
+                    exist_card = [exist_card]
+            if len(exist_card) == 0:
+                score = ERR_CARD_SCORE
+                is_invalid = True
+                if ENV_DEBUG:
+                    print('Can not accept the card')
+            else:
+                rnd = random.randint(0,len(exist_card)-1)
+                put_card = exist_card[rnd]
+                exist_card = [put_card - ix for ix in reversed(range(K))]
+                score = HandCardUtils.value_map(exist_card[-1], CardTypeEnum.CT_THREE, 9)
+                log_put = list()
+                for put_card in exist_card:
+                    self.observation[put_card] -= 3
+                    self.observation[18+put_card] += 3
+                    self.hand_card_status[put_card] -= 3
+                    self.put_card_status[put_card] += 3
+                    log_put.extend([put_card,put_card,put_card])
+                info['put_card'] = log_put
+                info['primary_item'] = exist_card[-1]
+        # 六连三不带
+        elif action == ActionTypeEnum.ACTION_PUT_6_THREE.value:
+            K = 6
+            exist_card = HandCardUtils.find_even_three(self.hand_card_status, k=K)
+            if primary_item is not None:
+                exist_card = list(filter(lambda x:x > primary_item,exist_card))
+                if isinstance(exist_card, int):
+                    exist_card = [exist_card]
+            if len(exist_card) == 0:
+                score = ERR_CARD_SCORE
+                is_invalid = True
+                if ENV_DEBUG:
+                    print('Can not accept the card')
+            else:
+                rnd = random.randint(0,len(exist_card)-1)
+                put_card = exist_card[rnd]
+                exist_card = [put_card - ix for ix in reversed(range(K))]
+                score = HandCardUtils.value_map(exist_card[-1], CardTypeEnum.CT_THREE, 9)
+                log_put = list()
+                for put_card in exist_card:
+                    self.observation[put_card] -= 3
+                    self.observation[18+put_card] += 3
+                    self.hand_card_status[put_card] -= 3
+                    self.put_card_status[put_card] += 3
+                    log_put.extend([put_card,put_card,put_card])
+                info['put_card'] = log_put
+                info['primary_item'] = exist_card[-1]
         # 两连三带一
         elif action == ActionTypeEnum.ACTION_PUT_2_THREE_ONE.value:
             K = 2
@@ -470,7 +646,7 @@ class Env(object):
                     exist_card = [exist_card]
             if len(exist_card) == 0:
                 score = ERR_CARD_SCORE
-                done = True
+                is_invalid = True
                 if ENV_DEBUG:
                     print('Can not accept the card')
             else:
@@ -481,7 +657,7 @@ class Env(object):
                     filter(lambda x: x[0] not in exist_card, enumerate(self.hand_card_status))))
                 if len(other_card) < K:
                     score = ERR_CARD_SCORE
-                    done = True
+                    is_invalid = True
                     if ENV_DEBUG:
                         print('Can not accept the card')
                 else:
@@ -505,8 +681,6 @@ class Env(object):
                     log_put.extend(tmp)
                     info['put_card'] = log_put
                     info['primary_item'] = exist_card[-1]
-                    if ENV_DEBUG:
-                        print('Put card %s,%s,%s,%s,%s,%s,%s,%s' %tuple(log_put))
         # 三连三带一
         elif action == ActionTypeEnum.ACTION_PUT_3_THREE_ONE.value:
             K = 3
@@ -517,7 +691,7 @@ class Env(object):
                     exist_card = [exist_card]
             if len(exist_card) == 0:
                 score = ERR_CARD_SCORE
-                done = True
+                is_invalid = True
                 if ENV_DEBUG:
                     print('Can not accept the card')
             else:
@@ -528,7 +702,7 @@ class Env(object):
                     filter(lambda x: x[0] not in exist_card, enumerate(self.hand_card_status))))
                 if len(other_card) < K:
                     score = ERR_CARD_SCORE
-                    done = True
+                    is_invalid = True
                     if ENV_DEBUG:
                         print('Can not accept the card')
                 else:
@@ -552,8 +726,96 @@ class Env(object):
                     log_put.extend(tmp)
                     info['put_card'] = log_put
                     info['primary_item'] = exist_card[-1]
+        # 四连三带一
+        elif action == ActionTypeEnum.ACTION_PUT_4_THREE_ONE.value:
+            K = 4
+            exist_card = HandCardUtils.find_even_three(self.hand_card_status, k=K)
+            if primary_item is not None:
+                exist_card = list(filter(lambda x:x > primary_item,exist_card))
+                if isinstance(exist_card, int):
+                    exist_card = [exist_card]
+            if len(exist_card) == 0:
+                score = ERR_CARD_SCORE
+                is_invalid = True
+                if ENV_DEBUG:
+                    print('Can not accept the card')
+            else:
+                rnd = random.randint(0,len(exist_card)-1)
+                put_card = exist_card[rnd]
+                exist_card = [put_card - ix for ix in reversed(range(K))]
+                other_card = list(map(lambda x:x[0], 
+                    filter(lambda x: x[0] not in exist_card, enumerate(self.hand_card_status))))
+                if len(other_card) < K:
+                    score = ERR_CARD_SCORE
+                    is_invalid = True
                     if ENV_DEBUG:
-                        print('Put card %s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s' %tuple(log_put))
+                        print('Can not accept the card')
+                else:
+                    tmp = list()
+                    for _ in range(K):
+                        rnd = random.randint(0,len(other_card)-1)
+                        tmp_card = other_card[rnd]
+                        tmp.append(tmp_card)
+                        self.observation[tmp_card] -= 1
+                        self.observation[18+tmp_card] += 1
+                        self.hand_card_status[tmp_card] -= 1
+                        self.put_card_status[tmp_card] += 1
+                    score = HandCardUtils.value_map(exist_card[-1], CardTypeEnum.CT_THREE_ONE, 3*K+K)
+                    log_put = list()
+                    for put_card in exist_card:
+                        self.observation[put_card] -= 3
+                        self.observation[18+put_card] += 3
+                        self.hand_card_status[put_card] -= 3
+                        self.put_card_status[put_card] += 3
+                        log_put.extend([put_card,put_card,put_card])
+                    log_put.extend(tmp)
+                    info['put_card'] = log_put
+                    info['primary_item'] = exist_card[-1]
+        # 五连三带一
+        elif action == ActionTypeEnum.ACTION_PUT_3_THREE_ONE.value:
+            K = 5
+            exist_card = HandCardUtils.find_even_three(self.hand_card_status, k=K)
+            if primary_item is not None:
+                exist_card = list(filter(lambda x:x > primary_item,exist_card))
+                if isinstance(exist_card, int):
+                    exist_card = [exist_card]
+            if len(exist_card) == 0:
+                score = ERR_CARD_SCORE
+                is_invalid = True
+                if ENV_DEBUG:
+                    print('Can not accept the card')
+            else:
+                rnd = random.randint(0,len(exist_card)-1)
+                put_card = exist_card[rnd]
+                exist_card = [put_card - ix for ix in reversed(range(K))]
+                other_card = list(map(lambda x:x[0], 
+                    filter(lambda x: x[0] not in exist_card, enumerate(self.hand_card_status))))
+                if len(other_card) < K:
+                    score = ERR_CARD_SCORE
+                    is_invalid = True
+                    if ENV_DEBUG:
+                        print('Can not accept the card')
+                else:
+                    tmp = list()
+                    for _ in range(K):
+                        rnd = random.randint(0,len(other_card)-1)
+                        tmp_card = other_card[rnd]
+                        tmp.append(tmp_card)
+                        self.observation[tmp_card] -= 1
+                        self.observation[18+tmp_card] += 1
+                        self.hand_card_status[tmp_card] -= 1
+                        self.put_card_status[tmp_card] += 1
+                    score = HandCardUtils.value_map(exist_card[-1], CardTypeEnum.CT_THREE_ONE, 3*K+K)
+                    log_put = list()
+                    for put_card in exist_card:
+                        self.observation[put_card] -= 3
+                        self.observation[18+put_card] += 3
+                        self.hand_card_status[put_card] -= 3
+                        self.put_card_status[put_card] += 3
+                        log_put.extend([put_card,put_card,put_card])
+                    log_put.extend(tmp)
+                    info['put_card'] = log_put
+                    info['primary_item'] = exist_card[-1]
         # 两连三带一对
         elif action == ActionTypeEnum.ACTION_PUT_2_THREE_DOU.value:
             K = 2
@@ -564,7 +826,7 @@ class Env(object):
                     exist_card = [exist_card]
             if len(exist_card) == 0:
                 score = ERR_CARD_SCORE
-                done = True
+                is_invalid = True
                 if ENV_DEBUG:
                     print('Can not accept the card')
             else:
@@ -575,7 +837,7 @@ class Env(object):
                     filter(lambda x: x[0] not in exist_card and x[1] == 2, enumerate(self.hand_card_status))))
                 if len(other_card) < K:
                     score = ERR_CARD_SCORE
-                    done = True
+                    is_invalid = True
                     if ENV_DEBUG:
                         print('Can not accept the card')
                 else:
@@ -599,8 +861,6 @@ class Env(object):
                     log_put.extend(tmp)
                     info['put_card'] = log_put
                     info['primary_item'] = exist_card[-1]
-                    if ENV_DEBUG:
-                        print('Put card %s,%s,%s,%s,%s,%s,%s,%s,%s,%s' %tuple(log_put))
         # 三连三带一对
         elif action == ActionTypeEnum.ACTION_PUT_3_THREE_DOU.value:
             K = 3
@@ -611,7 +871,7 @@ class Env(object):
                     exist_card = [exist_card]
             if len(exist_card) == 0:
                 score = ERR_CARD_SCORE
-                done = True
+                is_invalid = True
                 if ENV_DEBUG:
                     print('Can not accept the card')
             else:
@@ -622,7 +882,7 @@ class Env(object):
                     filter(lambda x: x[0] not in exist_card and x[1] == 2, enumerate(self.hand_card_status))))
                 if len(other_card) < K:
                     score = ERR_CARD_SCORE
-                    done = True
+                    is_invalid = True
                     if ENV_DEBUG:
                         print('Can not accept the card')
                 else:
@@ -646,8 +906,51 @@ class Env(object):
                     log_put.extend(tmp)
                     info['put_card'] = log_put
                     info['primary_item'] = exist_card[-1]
+        # 四连三带一对
+        elif action == ActionTypeEnum.ACTION_PUT_4_THREE_DOU.value:
+            K = 4
+            exist_card = HandCardUtils.find_even_three(self.hand_card_status, k=K)
+            if primary_item is not None:
+                exist_card = list(filter(lambda x:x > primary_item,exist_card))
+                if isinstance(exist_card, int):
+                    exist_card = [exist_card]
+            if len(exist_card) == 0:
+                score = ERR_CARD_SCORE
+                is_invalid = True
+                if ENV_DEBUG:
+                    print('Can not accept the card')
+            else:
+                rnd = random.randint(0,len(exist_card)-1)
+                put_card = exist_card[rnd]
+                exist_card = [put_card - ix for ix in reversed(range(K))]
+                other_card = list(map(lambda x:x[0], 
+                    filter(lambda x: x[0] not in exist_card and x[1] == 2, enumerate(self.hand_card_status))))
+                if len(other_card) < K:
+                    score = ERR_CARD_SCORE
+                    is_invalid = True
                     if ENV_DEBUG:
-                        print('Put card %s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s' %tuple(log_put))
+                        print('Can not accept the card')
+                else:
+                    tmp = list()
+                    for _ in range(K):
+                        rnd = random.randint(0,len(other_card)-1)
+                        tmp_card = other_card[rnd]
+                        tmp.extend([tmp_card,tmp_card])
+                        self.observation[tmp_card] -= 2
+                        self.observation[18+tmp_card] += 2
+                        self.hand_card_status[tmp_card] -= 2
+                        self.put_card_status[tmp_card] += 2
+                    score = HandCardUtils.value_map(exist_card[-1], CardTypeEnum.CT_THREE_DOU, 3*K+2*K)
+                    log_put = list()
+                    for put_card in exist_card:
+                        self.observation[put_card] -= 3
+                        self.observation[18+put_card] += 3
+                        self.hand_card_status[put_card] -= 3
+                        self.put_card_status[put_card] += 3
+                        log_put.extend([put_card,put_card,put_card])
+                    log_put.extend(tmp)
+                    info['put_card'] = log_put
+                    info['primary_item'] = exist_card[-1]
         # 四带二单
         elif action == ActionTypeEnum.ACTION_PUT_FOUR_ONE.value:
             exist_card = list(map(lambda x:x[0], filter(lambda x: x[1] == 4, enumerate(self.hand_card_status)))) 
@@ -659,7 +962,7 @@ class Env(object):
                     exist_card = [exist_card]
             if len(exist_card) == 0:
                 score = ERR_CARD_SCORE
-                done = True
+                is_invalid = True
                 if ENV_DEBUG:
                     print('Can not accept the card')
             else:
@@ -671,7 +974,7 @@ class Env(object):
                     other_exist_card = [other_exist_card]
                 if len(other_exist_card) <= 1:
                     score = ERR_CARD_SCORE
-                    done = True
+                    is_invalid = True
                     if ENV_DEBUG:
                         print('Can not accept the card')
                 else:
@@ -701,8 +1004,6 @@ class Env(object):
                     log_put.extend(tmp)
                     info['put_card'] = log_put
                     info['primary_item'] = put_card
-                    if ENV_DEBUG:
-                        print('Put card %s,%s,%s,%s,%s,%s' %tuple(log_put))
         # 四带二对
         elif action == ActionTypeEnum.ACTION_PUT_FOUR_DOU.value:
             exist_card = list(map(lambda x:x[0], filter(lambda x: x[1] == 4, enumerate(self.hand_card_status)))) 
@@ -714,7 +1015,7 @@ class Env(object):
                     exist_card = [exist_card]
             if len(exist_card) == 0:
                 score = ERR_CARD_SCORE
-                done = True
+                is_invalid = True
                 if ENV_DEBUG:
                     print('Can not accept the card')
             else:
@@ -726,7 +1027,7 @@ class Env(object):
                     other_exist_card = [other_exist_card]
                 if len(other_exist_card) <= 1:
                     score = ERR_CARD_SCORE
-                    done = True
+                    is_invalid = True
                     if ENV_DEBUG:
                         print('Can not accept the card')
                 else:
@@ -756,8 +1057,6 @@ class Env(object):
                     log_put.extend(tmp)
                     info['put_card'] = log_put
                     info['primary_item'] = put_card
-                    if ENV_DEBUG:
-                        print('Put card %s,%s,%s,%s,%s,%s,%s,%s' %tuple(log_put))
         # 连子(5)
         elif action == ActionTypeEnum.ACTION_PUT_5_CONTINUE.value:
             K = 5
@@ -768,7 +1067,7 @@ class Env(object):
                     exist_card = [exist_card]
             if len(exist_card) == 0:
                 score = ERR_CARD_SCORE
-                done = True
+                is_invalid = True
                 if ENV_DEBUG:
                     print('Can not accept the card')
             else:
@@ -785,8 +1084,7 @@ class Env(object):
                     log_put.extend([put_card])
                 info['put_card'] = log_put
                 info['primary_item'] = exist_card[-1]
-                if ENV_DEBUG:
-                    print('Put card %s,%s,%s,%s,%s' %tuple(log_put))
+                
         # 连子(6)
         elif action == ActionTypeEnum.ACTION_PUT_6_CONTINUE.value:
             K = 6
@@ -797,7 +1095,7 @@ class Env(object):
                     exist_card = [exist_card]
             if len(exist_card) == 0:
                 score = ERR_CARD_SCORE
-                done = True
+                is_invalid = True
                 if ENV_DEBUG:
                     print('Can not accept the card')
             else:
@@ -814,9 +1112,7 @@ class Env(object):
                     log_put.extend([put_card])
                 info['put_card'] = log_put
                 info['primary_item'] = exist_card[-1]
-                if ENV_DEBUG:
-                    print('Put card %s,%s,%s,%s,%s,%s' %tuple(log_put))
-
+                
         # 连子(7)
         elif action == ActionTypeEnum.ACTION_PUT_7_CONTINUE.value:
             K = 7
@@ -827,7 +1123,7 @@ class Env(object):
                     exist_card = [exist_card]
             if len(exist_card) == 0:
                 score = ERR_CARD_SCORE
-                done = True
+                is_invalid = True
                 if ENV_DEBUG:
                     print('Can not accept the card')
             else:
@@ -844,9 +1140,6 @@ class Env(object):
                     log_put.extend([put_card])
                 info['put_card'] = log_put
                 info['primary_item'] = exist_card[-1]
-                if ENV_DEBUG:
-                    print('Put card %s,%s,%s,%s,%s,%s,%s' %tuple(log_put))
-
         # 连子(8)
         elif action == ActionTypeEnum.ACTION_PUT_8_CONTINUE.value:
             K = 8
@@ -857,7 +1150,7 @@ class Env(object):
                     exist_card = [exist_card]
             if len(exist_card) == 0:
                 score = ERR_CARD_SCORE
-                done = True
+                is_invalid = True
                 if ENV_DEBUG:
                     print('Can not accept the card')
             else:
@@ -874,9 +1167,6 @@ class Env(object):
                     log_put.extend([put_card])
                 info['put_card'] = log_put
                 info['primary_item'] = exist_card[-1]
-                if ENV_DEBUG:
-                    print('Put card %s,%s,%s,%s,%s,%s,%s,%s' %tuple(log_put))
-
         # 连子(9)
         elif action == ActionTypeEnum.ACTION_PUT_9_CONTINUE.value:
             K = 9
@@ -887,7 +1177,7 @@ class Env(object):
                     exist_card = [exist_card]
             if len(exist_card) == 0:
                 score = ERR_CARD_SCORE
-                done = True
+                is_invalid = True
                 if ENV_DEBUG:
                     print('Can not accept the card')
             else:
@@ -904,9 +1194,6 @@ class Env(object):
                     log_put.extend([put_card])
                 info['put_card'] = log_put
                 info['primary_item'] = exist_card[-1]
-                if ENV_DEBUG:
-                    print('Put card %s,%s,%s,%s,%s,%s,%s,%s,%s' %tuple(log_put))
-
         # 连子(10)
         elif action == ActionTypeEnum.ACTION_PUT_10_CONTINUE.value:
             K = 10
@@ -917,7 +1204,7 @@ class Env(object):
                     exist_card = [exist_card]
             if len(exist_card) == 0:
                 score = ERR_CARD_SCORE
-                done = True
+                is_invalid = True
                 if ENV_DEBUG:
                     print('Can not accept the card')
             else:
@@ -934,8 +1221,6 @@ class Env(object):
                     log_put.extend([put_card])
                 info['put_card'] = log_put
                 info['primary_item'] = exist_card[-1]
-                if ENV_DEBUG:
-                    print('Put card %s,%s,%s,%s,%s,%s,%s,%s,%s,%s' %tuple(log_put))
         # 连子(11)
         elif action == ActionTypeEnum.ACTION_PUT_11_CONTINUE.value:
             K = 11
@@ -946,7 +1231,7 @@ class Env(object):
                     exist_card = [exist_card]
             if len(exist_card) == 0:
                 score = ERR_CARD_SCORE
-                done = True
+                is_invalid = True
                 if ENV_DEBUG:
                     print('Can not accept the card')
             else:
@@ -963,8 +1248,6 @@ class Env(object):
                     log_put.extend([put_card])
                 info['put_card'] = log_put
                 info['primary_item'] = exist_card[-1]
-                if ENV_DEBUG:
-                    print('Put card %s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s' %tuple(log_put))
         # 连子(12)
         elif action == ActionTypeEnum.ACTION_PUT_12_CONTINUE.value:
             K = 12
@@ -975,7 +1258,7 @@ class Env(object):
                     exist_card = [exist_card]
             if len(exist_card) == 0:
                 score = ERR_CARD_SCORE
-                done = True
+                is_invalid = True
                 if ENV_DEBUG:
                     print('Can not accept the card')
             else:
@@ -992,8 +1275,6 @@ class Env(object):
                     log_put.extend([put_card])
                 info['put_card'] = log_put
                 info['primary_item'] = exist_card[-1]
-                if ENV_DEBUG:
-                    print('Put card %s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s' %tuple(log_put))
         # 炸弹
         elif action == ActionTypeEnum.ACTION_PUT_BOMB.value:
             qu_ja = [CardEnum.QU.value, CardEnum.JA.value]
@@ -1009,7 +1290,7 @@ class Env(object):
                     comm_bomb = [comm_bomb]
             if len(comm_bomb) == 0 and len(master_bomb) < 2:
                 score = ERR_CARD_SCORE
-                done = True
+                is_invalid = True
                 if ENV_DEBUG:
                     print('Can not accept the card')
             else:
@@ -1041,24 +1322,22 @@ class Env(object):
                     self.put_card_status[put_card] += 4
                     info['put_card'] = [put_card,put_card,put_card,put_card]
                     info['primary_item'] = put_card
-                    if ENV_DEBUG:
-                        print('Put card %s,%s,%s,%s' %(put_card,put_card,put_card,put_card))
         # 不出
         elif action == ActionTypeEnum.ACTION_NO_PUT.value:
             if ENV_DEBUG:
                 print('Not put card')
 
-        #if self._is_done():
+        #if self._is_is_invalid():
         #    score += 1
         if ENV_DEBUG:
             print('Current card: %s' %self.hand_card_status)
             print('Current env: %s' %self.observation)
-            print('is game over: %s' %(self._is_done() or done))
+            print('is game over: %s' %(self._is_done() or is_invalid))
         #neg = list(filter(lambda x:x<0, self.hand_card_status))
         #if isinstance(neg, int) or len(neg) > 0:
         #    exit
-        info['error'] = done
-        return self.observation[3:18]+self.observation[21:], score, self._is_done() or done, info
+        info['error'] = is_invalid
+        return self.observation[3:18]+self.observation[21:], score, self._is_done() or is_invalid, info
 
     def _is_done(self):
         return sum(self.hand_card_status) == 0
@@ -1068,12 +1347,14 @@ if __name__ == '__main__':
     obser = env.reset()
     print(obser)
     print(env.hand_card_status)
-    done = False
+    is_invalid = False
     t = 1
     print('------------------start [{}]'.format(t))
-    while t <= 0:
-        action = random.randint(0,26)
+    while t <= 10:
+        action = random.randint(0,config.N_ACTION)
         _, _, done, info = env.step(action)
+        if not info["error"]:
+            print(info['put_card'])
         if done:
             obser = env.reset()
             t += 1

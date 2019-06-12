@@ -26,7 +26,7 @@ class AgentCore(object):
         discount_rate: 衰减因子
     """
     def __init__(self, n_input, n_output, n_hidden=50, discount_rate=0.99, learning_rate=0.001, n_epoch=100,
-                batch_size=20, min_grad = 0.1, max_grad = 1, n_action = 27, window = 2,
+                batch_size=20, min_grad = 0.1, max_grad = 1, n_action = config.N_ACTION, window = 2,
                 max_sample_pool = 100000, tau = 0.001):
         self.n_input = n_input
         self.n_output = n_output
