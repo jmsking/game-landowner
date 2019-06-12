@@ -23,12 +23,12 @@ class Primal(Enum):
 """
 Definition of the policy network action
 """
-ACTION_DICT = dict()
+POLICY_ACTION_DICT = dict()
 k = 0
 # solo - kicker(No) - chain(No) - cardTypeStruct - card
 # quantity(15)
 for card_item in ALL_UNIQUE_CARD:
-    ACTION_DICT[k] = (Primal.SOLO, False, False, 
+    POLICY_ACTION_DICT[k] = (Primal.SOLO, False, False, 
                         CardTypeStruct(ActionTypeEnum.ACTION_PUT_ONE, 1, card_item),
                         [card_item])
     k += 1
@@ -54,7 +54,7 @@ for card_count in range(5, 13, 1):
         action_type = ActionTypeEnum.ACTION_PUT_12_CONTINUE
     for ind in range(len(all_card_tmp)-card_count + 1):
         card = all_card_tmp[ind:ind+card_count]
-        ACTION_DICT[k] = (Primal.SOLO, False, True, 
+        POLICY_ACTION_DICT[k] = (Primal.SOLO, False, True, 
                             CardTypeStruct(action_type, card_count, card[-1]),
                             card)
         k += 1
@@ -63,7 +63,7 @@ for card_count in range(5, 13, 1):
 # quantity(13)
 # Remove 'S', 'B'
 for card_item in ALL_UNIQUE_CARD[:-2]:
-    ACTION_DICT[k] = (Primal.PAIR, False, False, 
+    POLICY_ACTION_DICT[k] = (Primal.PAIR, False, False, 
                         CardTypeStruct(ActionTypeEnum.ACTION_PUT_DOU, 2, card_item),
                         [card_item, card_item])
     k += 1
@@ -92,7 +92,7 @@ for card_count in range(3, 11, 1):
         card_comb = list()
         for item in card:
             card_comb.extend([item, item])
-        ACTION_DICT[k] = (Primal.PAIR, False, True, 
+        POLICY_ACTION_DICT[k] = (Primal.PAIR, False, True, 
                             CardTypeStruct(action_type, card_count*2, card[-1]),
                             card_comb)
         k += 1
@@ -101,7 +101,7 @@ for card_count in range(3, 11, 1):
 # quantity(13)
 # Remove 'S', 'B'
 for card_item in ALL_UNIQUE_CARD[:-2]:
-    ACTION_DICT[k] = (Primal.TRIO, False, False, 
+    POLICY_ACTION_DICT[k] = (Primal.TRIO, False, False, 
                         CardTypeStruct(ActionTypeEnum.ACTION_PUT_THREE, 3, card_item),
                         [card_item, card_item, card_item])
     k += 1
@@ -124,7 +124,7 @@ for card_count in range(2, 7, 1):
         card_comb = list()
         for item in card:
             card_comb.extend([item, item, item])
-        ACTION_DICT[k] = (Primal.TRIO, False, True, 
+        POLICY_ACTION_DICT[k] = (Primal.TRIO, False, True, 
                             CardTypeStruct(action_type, card_count*3, card[-1]),
                             card_comb)
         k += 1
@@ -133,7 +133,7 @@ for card_count in range(2, 7, 1):
 # quantity(13)
 # Remove 'S', 'B'
 for card_item in ALL_UNIQUE_CARD[:-2]:
-    ACTION_DICT[k] = (Primal.TRIO, True, False, 
+    POLICY_ACTION_DICT[k] = (Primal.TRIO, True, False, 
                         CardTypeStruct(ActionTypeEnum.ACTION_PUT_THREE_ONE, 4, card_item),
                         [card_item, card_item, card_item])
     k += 1
@@ -154,7 +154,7 @@ for card_count in range(2, 6, 1):
         card_comb = list()
         for item in card:
             card_comb.extend([item, item, item])
-        ACTION_DICT[k] = (Primal.TRIO, True, True, 
+        POLICY_ACTION_DICT[k] = (Primal.TRIO, True, True, 
                             CardTypeStruct(action_type, card_count*3 + card_count, card[-1]),
                             card_comb)
         k += 1
@@ -163,7 +163,7 @@ for card_count in range(2, 6, 1):
 # quantity(13)
 # Remove 'S', 'B'
 for card_item in ALL_UNIQUE_CARD[:-2]:
-    ACTION_DICT[k] = (Primal.TRIO, True, False, 
+    POLICY_ACTION_DICT[k] = (Primal.TRIO, True, False, 
                         CardTypeStruct(ActionTypeEnum.ACTION_PUT_THREE_DOU, 5, card_item),
                         [card_item, card_item, card_item])
     k += 1
@@ -182,7 +182,7 @@ for card_count in range(2, 5, 1):
         card_comb = list()
         for item in card:
             card_comb.extend([item, item, item])
-        ACTION_DICT[k] = (Primal.TRIO, True, True, 
+        POLICY_ACTION_DICT[k] = (Primal.TRIO, True, True, 
                             CardTypeStruct(action_type, card_count*3 + card_count*2, card[-1]),
                             card_comb)
         k += 1
@@ -191,7 +191,7 @@ for card_count in range(2, 5, 1):
 # quantity(13)
 # Remove 'S', 'B'
 for card_item in ALL_UNIQUE_CARD[:-2]:
-    ACTION_DICT[k] = (Primal.TRIO, True, False, 
+    POLICY_ACTION_DICT[k] = (Primal.TRIO, True, False, 
                         CardTypeStruct(ActionTypeEnum.ACTION_PUT_FOUR_ONE, 6, card_item),
                         [card_item, card_item, card_item, card_item])
     k += 1
@@ -200,7 +200,7 @@ for card_item in ALL_UNIQUE_CARD[:-2]:
 # quantity(13)
 # Remove 'S', 'B'
 for card_item in ALL_UNIQUE_CARD[:-2]:
-    ACTION_DICT[k] = (Primal.TRIO, True, False, 
+    POLICY_ACTION_DICT[k] = (Primal.TRIO, True, False, 
                         CardTypeStruct(ActionTypeEnum.ACTION_PUT_FOUR_DOU, 8, card_item),
                         [card_item, card_item, card_item, card_item])
     k += 1
@@ -209,28 +209,41 @@ for card_item in ALL_UNIQUE_CARD[:-2]:
 # quantity(13)
 # Remove 'S', 'B'
 for card_item in ALL_UNIQUE_CARD[:-2]:
-    ACTION_DICT[k] = (Primal.BOMB, False, False, 
+    POLICY_ACTION_DICT[k] = (Primal.BOMB, False, False, 
                         CardTypeStruct(ActionTypeEnum.ACTION_PUT_BOMB, 4, card_item),
                         [card_item, card_item, card_item, card_item])
     k += 1
 
 # rocket - kicker(No) - chain(No) - cardTypeStruct - card
 # quantity(1)
-ACTION_DICT[k] = (Primal.BOMB, False, False, 
+POLICY_ACTION_DICT[k] = (Primal.BOMB, False, False, 
                         CardTypeStruct(ActionTypeEnum.ACTION_PUT_BOMB, 2, ALL_UNIQUE_CARD[-1]),
                         ALL_UNIQUE_CARD[-2:])
 k += 1
 
 # pass - kicker(No) - chain(No) - cardTypeStruct - card
 # quantity(1)
-ACTION_DICT[k] = (Primal.PASS, False, False, 
+POLICY_ACTION_DICT[k] = (Primal.PASS, False, False, 
                         CardTypeStruct(ActionTypeEnum.ACTION_NO_PUT, 0, None), ['PASS'])
 
 k += 1
 
+"""
+Definition of the kicker network action
+"""
+KICKER_ACTION_DICT = dict()
+k = 0
+for card_item in ALL_UNIQUE_CARD:
+    KICKER_ACTION_DICT[k] = (Primal.SOLO, [card_item])
+    k += 1
+
+for card_item in ALL_UNIQUE_CARD[:-2]:
+    KICKER_ACTION_DICT[k] = (Primal.PAIR, [card_item, card_item])
+    k += 1
+
+
 if __name__ == "__main__":
-    #print(k)
-    for item in ACTION_DICT.values():
+    for item in KICKER_ACTION_DICT.values():
         print(item[-1])
         
 

@@ -139,13 +139,13 @@ class PolicyNet():
             predictions = tf.reduce_mean(tf.cast(tf.equal(tf.argmax(y_, 1), tf.argmax(y, 1)), tf.float32))
             accuracy = sess.run(predictions, feed_dict={x:input_x, y_:input_y})
             print('Train Accuracy: {}%'.format(accuracy*100))
-            saver.save(sess, config.MODEL_SAVE_PATH)
+            saver.save(sess, config.POLICY_MODEL_SAVE_PATH)
             print('Model Save Success.')
     
     def predict(self, input_data):
         with tf.Session() as sess:
-            saver = tf.train.import_meta_graph(config.META_SAVE_PATH)
-            model_file = tf.train.latest_checkpoint(config.MODEL_PARENT_PATH)
+            saver = tf.train.import_meta_graph(config.POLICY_META_SAVE_PATH)
+            model_file = tf.train.latest_checkpoint(config.POLICY_MODEL_PARENT_PATH)
             saver.restore(sess, model_file)
             net_out = tf.get_collection('net_out')
             pred = sess.run(net_out, feed_dict={"x:0":input_data})[0][0]
@@ -157,7 +157,7 @@ if __name__ == "__main__":
     train_output = enc.fit_transform(train_output)
     net = PolicyNet()
     print(train_inputs[0:1,:,:,:].shape)
-    #net.start_train(train_inputs, train_output)
+    net.start_train(train_inputs, train_output)
     pred = net.predict(train_inputs[0:1,:,:,:])
     print(pred)
 

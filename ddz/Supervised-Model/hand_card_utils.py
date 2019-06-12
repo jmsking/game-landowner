@@ -134,7 +134,7 @@ class HandCardUtils(object):
 
     """ Decode the put card 
         Returns:
-          (action type, {card:card_num})
+          (policy net action, kicker net action, {card:card_num})
           Ex. 
             Input: TTT
             Output: (8, {'T': 3})
@@ -143,7 +143,7 @@ class HandCardUtils(object):
     def decode_put_card(put_card):
         # 不出
         if put_card is None or len(put_card) == 0:
-            return 308, {}
+            return 308, None, {}
         hand_card_status = HandCardUtils.obtain_hand_card_status(put_card)
         assert len(hand_card_status) == 18, 'the size of hand card status must be 18.'
         card_count = sum(hand_card_status)
@@ -168,7 +168,7 @@ class HandCardUtils(object):
         # 0-14
         if card_count == 1:
             primary_item = find_one[-1]
-            return primary_item-3, card_record
+            return primary_item-3, None, card_record
         # 连子-36
         # 15-22 (5)
         # 23-29 (6)
@@ -188,22 +188,24 @@ class HandCardUtils(object):
                     if HandCardUtils._is_find(find_one):
                         primary_item = find_one[-1]
                         count = len(find_one)
+                        policy_action = -1
                         if count == 5:
-                            return primary_item+8, card_record
+                            policy_action = primary_item+8
                         if count == 6:
-                            return primary_item+15, card_record
+                            policy_action = primary_item+15
                         if count == 7:
-                            return primary_item+21, card_record
+                            policy_action = primary_item+21
                         if count == 8:
-                            return primary_item+26, card_record
+                            policy_action = primary_item+26
                         if count == 9:
-                            return primary_item+30, card_record
+                            policy_action = primary_item+30
                         if count == 10:
-                            return primary_item+33, card_record
+                            policy_action = primary_item+33
                         if count == 11:
-                            return primary_item+35, card_record
+                            policy_action = primary_item+35
                         if count == 12:
-                            return 50, card_record
+                            policy_action = 50
+                        return policy_action, None, card_record
         # 对子(包含连对)-65
         # 51-63 (1)
         # 64-73 (3)
@@ -217,28 +219,30 @@ class HandCardUtils(object):
         if card_count % 2 == 0 and card_count > 0 and len(find_two) >= 1:
             if card_count == 2 and len(find_two) == 1:
                 primary_item = find_two[-1]
-                return primary_item+48, card_record
+                return primary_item+48, None, card_record
             # 列表中只含对子且对子中不含2
             if len(find_two) * 2 == card_count and CardEnum.TW.value not in find_two:
                 if HandCardUtils._is_find(find_two):
                     primary_item = find_two[-1]
                     count = len(find_two)
+                    policy_action = -1
                     if count == 3:
-                        return primary_item+59, card_record
+                        policy_action = primary_item+59
                     if count == 4:
-                        return primary_item+68, card_record
+                        policy_action = primary_item+68
                     if count == 5:
-                        return primary_item+76, card_record
+                        policy_action = primary_item+76
                     if count == 6:
-                        return primary_item+83, card_record
+                        policy_action = primary_item+83
                     if count == 7:
-                        return primary_item+89, card_record
+                        policy_action = primary_item+89
                     if count == 8:
-                        return primary_item+94, card_record
+                        policy_action = primary_item+94
                     if count == 9:
-                        return primary_item+98, card_record
+                        policy_action = primary_item+98
                     if count == 10:
-                        return primary_item+101, card_record
+                        policy_action = primary_item+101
+                    return policy_action, None, card_record
         # 三不带(连三不带)-58
         # 116-128 (1)
         # 129-139 (2)
@@ -249,22 +253,24 @@ class HandCardUtils(object):
         if card_count % 3 == 0 and card_count > 0 and len(find_three) >= 1:
             if len(find_three) == 1:
                 primary_item = find_three[-1]
-                return primary_item+113, card_record
+                return primary_item+113, None, card_record
             # 连三不带里面不能包含2
             elif len(find_three) * 3 == card_count and CardEnum.TW.value not in find_three:
                 if HandCardUtils._is_find(find_three):
                     primary_item = find_three[-1]
                     count = len(find_three)
+                    policy_action = -1
                     if count == 2:
-                        return primary_item+125, card_record
+                        policy_action = primary_item+125
                     if count == 3:
-                        return primary_item+135, card_record
+                        policy_action = primary_item+135
                     if count == 4:
-                        return primary_item+144, card_record
+                        policy_action = primary_item+144
                     if count == 5:
-                        return primary_item+152, card_record
+                        policy_action = primary_item+152
                     if count == 6:
-                        return primary_item+159, card_record
+                        policy_action = primary_item+159
+                    return policy_action, None, card_record
         #三带一单(连三带一单)-51
         # 174-186 (1)
         # 187-197 (2)
@@ -275,19 +281,23 @@ class HandCardUtils(object):
             # 三带一单
             if len(find_three) == 1 and len(find_one) == 1:
                 primary_item = find_three[-1]
-                return primary_item+171, card_record
+                kicker_action = list(map(lambda x:x-3, find_one))
+                return primary_item+171, kicker_action, card_record
             elif len(find_three) * 3 + len(find_one) == card_count and CardEnum.TW.value not in find_three:
                 if HandCardUtils._is_find(find_three):
                     primary_item = find_three[-1]
                     count = len(find_three)
+                    policy_action = -1
+                    kicker_action = list(map(lambda x:x-3, find_one))
                     if count == 2:
-                        return primary_item+183, card_record
+                        policy_action = primary_item+183
                     if count == 3:
-                        return primary_item+193, card_record
+                        policy_action = primary_item+193
                     if count == 4:
-                        return primary_item+202, card_record
+                        policy_action = primary_item+202
                     if count == 5:
-                        return primary_item+210, card_record
+                        policy_action = primary_item+210
+                    return policy_action, kicker_action, card_record
         #三带一对(连三带一对)-43
         # 225-237 (1)
         # 238-248 (2)
@@ -297,29 +307,35 @@ class HandCardUtils(object):
             # 三带一对
             if len(find_two) == 1 and len(find_three) == 1:
                 primary_item = find_three[-1]
-                return primary_item+222, card_record
+                kicker_action = list(map(lambda x:x+12, find_one))
+                return primary_item+222, kicker_action, card_record
             elif len(find_three) * 3 + len(find_two) * 2 == card_count and CardEnum.TW.value not in find_three:
                 if HandCardUtils._is_find(find_three):
                     primary_item = find_three[-1]
                     count = len(find_three)
+                    policy_action = -1
+                    kicker_action = list(map(lambda x:x+12, find_one))
                     if count == 2:
-                        return primary_item+234, card_record
+                        policy_action = primary_item+234
                     if count == 3:
-                        return primary_item+244, card_record
+                        policy_action = primary_item+244
                     if count == 4:
-                        return primary_item+253, card_record
+                        policy_action = primary_item+253
+                    return policy_action, kicker_action, card_record
         # 四带两单-13
         # 268-280
         if card_count == 6 and len(find_four) >= 1:
             if len(find_four) == 1 and len(find_one) == 2:
                 primary_item = find_four[-1]
-                return primary_item+265, card_record
+                kicker_action = list(map(lambda x:x-3, find_one))
+                return primary_item+265, kicker_action, card_record
         # 四带两对-13
         # 281-293
         if card_count == 8 and len(find_four) >= 1:
             if len(find_four) == 1 and len(find_two) == 2:
                 primary_item = find_four[-1]
-                return primary_item+278, card_record
+                kicker_action = list(map(lambda x:x+12, find_one))
+                return primary_item+278, kicker_action, card_record
         # 炸弹(普通炸弹)-13
         # 294-306
         if card_count == 4 and len(find_four) >= 1:
@@ -332,7 +348,7 @@ class HandCardUtils(object):
             if len(find_one) == 2 and find_one[0] == CardEnum.QU.value and find_one[1] == CardEnum.JA.value:
                 return 307, card_record
        
-        return 308, {}
+        return 308, None, {}
 
 if __name__ == '__main__':
 

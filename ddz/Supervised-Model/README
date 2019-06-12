@@ -47,3 +47,10 @@ II. Policy Network
         <13. Bomb No No: 16
         <14. Rocket No No: 17
         <15. Pass No No: 18
+
+III. Kicker Network
+    1. Net Structure: Conv(3)-Full(1)
+    2. Activation Func: Relu
+    3. Output Layer: Softmax Layer
+    4. Input Shape: 15*4*3 binary tensor
+    5. Output Shape: 28
