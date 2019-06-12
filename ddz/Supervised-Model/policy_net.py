@@ -1,13 +1,19 @@
 #! /usr/bin/env python3
 
 import tensorflow as tf
+from preproc import PreprocUtils
+import numpy as np
+from sklearn.preprocessing import OneHotEncoder, StandardScaler
+import config
 
 class PolicyNet():
-    def __init__(self, x_dim=15, y_dim=19, z_dim=21, 
-                n_action=309, n_display=50, learning_rate=0.001, n_epoches=100):
+    def __init__(self, x_dim=15, y_dim=4, z_dim=3, batch_size = 5,
+                n_action=config.N_POLICY_ACTION, n_display=5, 
+                learning_rate=0.001, n_epoches=100):
         self.x_dim = x_dim
         self.y_dim = y_dim
         self.z_dim = z_dim
+        self.batch_size = batch_size
         self.n_action = n_action
         self.n_display = n_display
         self.learning_rate = learning_rate
@@ -33,7 +39,7 @@ class PolicyNet():
             bias_init_value = tf.constant(0, shape=[n_kernel], dtype=tf.float32)
             bias = tf.Variable(bias_init_value, trainable=True, name="bias")
 
-            layer_out = tf.layers.conv2d(input, kernel, [1,dh,dw,1], padding="SAME")
+            layer_out = tf.nn.conv2d(input_data, kernel, [1,dh,dw,1], padding="SAME")
             layer_out_add_bias = tf.nn.bias_add(layer_out, bias)
             conv_out = tf.nn.relu(layer_out_add_bias, name=scope)
             param_list += [kernel, bias]
@@ -87,19 +93,20 @@ class PolicyNet():
         pool_3 = self.max_pool_op(conv_3, 2, 2, 1, 1, 'pool_3')
 
         shp = pool_3.get_shape()
-        flatt_size = shp[0].value * shp[1].value * shp[2].value
+        flatt_size = shp[1].value * shp[2].value * shp[3].value
         flatt_input = tf.reshape(pool_3, [-1, flatt_size], name="flatt_input")
 
         fc_out = self.fc_op(flatt_input, self.n_action, param_list, "fc")
-        prob = tf.nn.softmax(fc_out)
-        y = tf.argmax(prob, 1)
+        y = tf.nn.softmax(fc_out)
+        tf.add_to_collection('net_out', y)
         return y, param_list
 
     def train_op(self, y_, y, tvar):
         optimizer = tf.train.AdamOptimizer(self.learning_rate)
-        loss = tf.reduce_mean(tf.reduce_sum(-y_*tf.log(y)))
-        grad = tf.gradients(loss, tvar)
-        update_grad = optimizer.apply_gradients(zip(grad, tvar))
+        loss = -tf.reduce_mean(tf.reduce_sum(y_*tf.log(y)))
+        #grad = tf.gradients(loss, tvar)
+        #update_grad = optimizer.apply_gradients(zip(grad, tvar))
+        update_grad = optimizer.minimize(loss)
         return update_grad, loss
 
     def build_input(self):
@@ -108,30 +115,51 @@ class PolicyNet():
         y_ = tf.placeholder(tf.float32, [None, self.n_action], name="y")
         return x, y_
 
-    def obtain_mini_batch(self, input_data):
-        batch_x, batch_y = [], []
-        return batch_x, batch_y
+    def obtain_mini_batch(self, input_x, input_y):
+        n_samples = input_x.shape[0]
+        rnd = np.random.randint(n_samples-self.batch_size+1)
+        end = rnd+self.batch_size
+        return input_x[rnd:end,:,:,:], input_y[rnd:end,:]
 
-    def start_train(self, input_data):
+    def start_train(self, input_x, input_y):
         with tf.Session() as sess:
-            init = tf.global_variables_initializer()
-            sess.run(init)
             x, y_ = self.build_input()
             y, tvar = self.build_net(x)
             update_grad, loss = self.train_op(y_, y, tvar)
+            init = tf.global_variables_initializer()
+            sess.run(init)
+            saver = tf.train.Saver()
             for epoch in range(self.n_epoches):
                 epoch += 1
-                batch_x, batch_y = self.obtain_mini_batch(input_data)
+                batch_x, batch_y = self.obtain_mini_batch(input_x, input_y)
                 cost, _ = sess.run([loss, update_grad], feed_dict={x:batch_x, y_:batch_y})
                 if epoch % self.n_display == 0:
                     print_log = "Epoch/Epoches: {}/{} - cost: {}"
-                    print(print_log %(epoch, self.n_epoches, cost))
-
+                    print(print_log.format(epoch, self.n_epoches, cost))
+            predictions = tf.reduce_mean(tf.cast(tf.equal(tf.argmax(y_, 1), tf.argmax(y, 1)), tf.float32))
+            accuracy = sess.run(predictions, feed_dict={x:input_x, y_:input_y})
+            print('Train Accuracy: {}%'.format(accuracy*100))
+            saver.save(sess, config.MODEL_SAVE_PATH)
+            print('Model Save Success.')
+    
+    def predict(self, input_data):
+        with tf.Session() as sess:
+            saver = tf.train.import_meta_graph(config.META_SAVE_PATH)
+            model_file = tf.train.latest_checkpoint(config.MODEL_PARENT_PATH)
+            saver.restore(sess, model_file)
+            net_out = tf.get_collection('net_out')
+            pred = sess.run(net_out, feed_dict={"x:0":input_data})[0][0]
+        return np.argmax(pred)
 
 if __name__ == "__main__":
+    train_inputs, train_output = PreprocUtils.gen_policy_net_input()
+    enc = OneHotEncoder(categories=[[i for i in range(config.N_POLICY_ACTION)]], sparse=False)
+    train_output = enc.fit_transform(train_output)
     net = PolicyNet()
-    net.start_train(None)
-    
+    print(train_inputs[0:1,:,:,:].shape)
+    #net.start_train(train_inputs, train_output)
+    pred = net.predict(train_inputs[0:1,:,:,:])
+    print(pred)
 
     
         

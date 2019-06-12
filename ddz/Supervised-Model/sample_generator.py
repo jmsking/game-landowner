@@ -200,7 +200,7 @@ def generate_data():
             put_card_status = env.put_card_status
             last_primary = info['primary_item']
         else:
-            #pass
+            # pass
             card_process.append("2,PASS")
         if done:
             break
