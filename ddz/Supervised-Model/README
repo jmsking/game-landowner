@@ -18,8 +18,32 @@ II. Policy Network
     1. Net Structure: Conv(10)-Full(1)
     2. Activation Func: Relu
     3. Output Layer: Softmax Layer
-    4. Input Shape: 15*19*21
+    4. Input Shape: 15*19*21 binary tensor
         X-axis: 表征玩家手牌状态    Ex. [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1] 表示手牌为[3,B], B(大王)
-        Y-axis: 表征玩家每张牌的个数 (from 0-4) + 
-        Z-axis: 取最后6轮
+        Y-axis: 表征玩家每张牌的个数和一些牌型特征 (1-4) + (solo,pair,trio...)
+        Z-axis: 1: 最后六轮之前所有出的牌
+                2-4: 三个玩家倒数第六轮出的牌
+                5-7: 三个玩家倒数第五轮出的牌
+                8-10: 三个玩家倒数第四轮出的牌
+                11-13: 三个玩家倒数第三轮出的牌
+                14-16: 三个玩家倒数第二轮出的牌
+                17-19: 三个玩家最后一轮出的牌
+                20: 至今未看到的所有牌
+                21: 在手上的所有牌
     5. Output Shape: 309
+    6. Y-axis 其他15个属性为: 
+        <1. Solo-No-No: 4
+        <2. Solo-No-Yes: 5
+        <3. Pair-No-No: 6
+        <4. Pair-No-Yes: 7
+        <5. Trio-No-No: 8
+        <6. Trio-No-Yes: 9
+        <7. Trio-Solo-No: 10
+        <8. Trio Solo Yes: 11
+        <9. Trio Pair No: 12
+        <10. Trio Pair Yes: 13
+        <11. Four Dual solo No: 14
+        <12. Four Dual pair No: 15
+        <13. Bomb No No: 16
+        <14. Rocket No No: 17
+        <15. Pass No No: 18

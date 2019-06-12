@@ -12,6 +12,9 @@ import copy
 
 ENV_DEBUG = config.ENV_DEBUG
 
+"""
+For generate samples
+"""
 class Env(object):
     def __init__(self):
         pass

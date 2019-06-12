@@ -104,8 +104,8 @@ def generate_data():
             put_card_status = env.put_card_status
             last_primary = info['primary_item']
         else:
-            pass
-            #card_process.append("0,PASS")
+            #pass
+            card_process.append("0,PASS")
         if done:
             break
         _ = env.specify_env(low_agent_status, put_card_status)
@@ -152,8 +152,8 @@ def generate_data():
             put_card_status = env.put_card_status
             last_primary = info['primary_item']
         else:
-            pass
-            #card_process.append("1,PASS")
+            #pass
+            card_process.append("1,PASS")
         if done:
             break
         _ = env.specify_env(up_agent_status, put_card_status)
@@ -200,8 +200,8 @@ def generate_data():
             put_card_status = env.put_card_status
             last_primary = info['primary_item']
         else:
-            pass
-            #card_process.append("2,PASS")
+            #pass
+            card_process.append("2,PASS")
         if done:
             break
     return cards, card_process
