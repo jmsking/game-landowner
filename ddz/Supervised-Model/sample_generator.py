@@ -211,4 +211,4 @@ if __name__ == "__main__":
     print(cards)
     print(card_process)
     card_process = ";".join(card_process)
-    HandCardUtils.write_to_file(cards, card_process)
+    #HandCardUtils.write_to_file(cards, card_process)

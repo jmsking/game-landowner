@@ -214,7 +214,8 @@ class Env(object):
                 if ENV_DEBUG:
                     print('Can not accept the card')
             else:
-                rnd = random.randint(0,len(exist_card)-1)
+                #rnd = random.randint(0,len(exist_card)-1)
+                rnd = 0
                 put_card = exist_card[rnd]
                 other_exist_card = list(map(lambda x:x[0], 
                     filter(lambda x: x[1] >= 1 and x[0] != put_card, enumerate(self.hand_card_status))))
@@ -226,7 +227,8 @@ class Env(object):
                     if ENV_DEBUG:
                         print('Can not accept the card')
                 else:
-                    rnd = random.randint(0,len(other_exist_card)-1)
+                    #rnd = random.randint(0,len(other_exist_card)-1)
+                    rnd = 0
                     other_put_card = other_exist_card[rnd]
                     score = HandCardUtils.value_map(put_card, CardTypeEnum.CT_THREE_ONE, 4)
                     self.observation[put_card] -= 3
@@ -256,6 +258,7 @@ class Env(object):
                     print('Can not accept the card')
             else:
                 rnd = random.randint(0,len(exist_card)-1)
+                rnd = 0
                 put_card = exist_card[rnd]
                 other_exist_card = list(map(lambda x:x[0], 
                     filter(lambda x: x[1] >= 2 and x[0] != put_card, enumerate(self.hand_card_status))))
@@ -268,6 +271,7 @@ class Env(object):
                         print('Can not accept the card')
                 else:
                     rnd = random.randint(0,len(other_exist_card)-1)
+                    rnd = 0
                     other_put_card = other_exist_card[rnd]
                     score = HandCardUtils.value_map(put_card, CardTypeEnum.CT_THREE_DOU, 5)
                     self.observation[put_card] -= 3
@@ -296,6 +300,7 @@ class Env(object):
                     print('Can not accept the card')
             else:
                 rnd = random.randint(0,len(exist_card)-1)
+                rnd = 0
                 put_card = exist_card[rnd]
                 exist_card = [put_card - ix for ix in reversed(range(K))]
                 score = HandCardUtils.value_map(exist_card[-1], CardTypeEnum.CT_DOU, 6)
@@ -324,6 +329,7 @@ class Env(object):
                     print('Can not accept the card')
             else:
                 rnd = random.randint(0,len(exist_card)-1)
+                rnd = 0
                 put_card = exist_card[rnd]
                 exist_card = [put_card - ix for ix in reversed(range(K))]
                 score = HandCardUtils.value_map(exist_card[-1], CardTypeEnum.CT_DOU, 8)
@@ -352,6 +358,7 @@ class Env(object):
                     print('Can not accept the card')
             else:
                 rnd = random.randint(0,len(exist_card)-1)
+                rnd = 0
                 put_card = exist_card[rnd]
                 exist_card = [put_card - ix for ix in reversed(range(K))]
                 score = HandCardUtils.value_map(exist_card[-1], CardTypeEnum.CT_DOU, 10)
@@ -380,6 +387,7 @@ class Env(object):
                     print('Can not accept the card')
             else:
                 rnd = random.randint(0,len(exist_card)-1)
+                rnd = 0
                 put_card = exist_card[rnd]
                 exist_card = [put_card - ix for ix in reversed(range(K))]
                 score = HandCardUtils.value_map(exist_card[-1], CardTypeEnum.CT_DOU, 10)
@@ -407,6 +415,7 @@ class Env(object):
                     print('Can not accept the card')
             else:
                 rnd = random.randint(0,len(exist_card)-1)
+                rnd = 0
                 put_card = exist_card[rnd]
                 exist_card = [put_card - ix for ix in reversed(range(K))]
                 score = HandCardUtils.value_map(exist_card[-1], CardTypeEnum.CT_DOU, 10)
@@ -434,6 +443,7 @@ class Env(object):
                     print('Can not accept the card')
             else:
                 rnd = random.randint(0,len(exist_card)-1)
+                rnd = 0
                 put_card = exist_card[rnd]
                 exist_card = [put_card - ix for ix in reversed(range(K))]
                 score = HandCardUtils.value_map(exist_card[-1], CardTypeEnum.CT_DOU, 10)
@@ -461,6 +471,7 @@ class Env(object):
                     print('Can not accept the card')
             else:
                 rnd = random.randint(0,len(exist_card)-1)
+                rnd = 0
                 put_card = exist_card[rnd]
                 exist_card = [put_card - ix for ix in reversed(range(K))]
                 score = HandCardUtils.value_map(exist_card[-1], CardTypeEnum.CT_DOU, 10)
@@ -488,6 +499,7 @@ class Env(object):
                     print('Can not accept the card')
             else:
                 rnd = random.randint(0,len(exist_card)-1)
+                rnd = 0
                 put_card = exist_card[rnd]
                 exist_card = [put_card - ix for ix in reversed(range(K))]
                 score = HandCardUtils.value_map(exist_card[-1], CardTypeEnum.CT_DOU, 10)
@@ -515,6 +527,7 @@ class Env(object):
                     print('Can not accept the card')
             else:
                 rnd = random.randint(0,len(exist_card)-1)
+                rnd = 0
                 put_card = exist_card[rnd]
                 exist_card = [put_card - ix for ix in reversed(range(K))]
                 score = HandCardUtils.value_map(exist_card[-1], CardTypeEnum.CT_THREE, 6)
@@ -543,6 +556,7 @@ class Env(object):
                     print('Can not accept the card')
             else:
                 rnd = random.randint(0,len(exist_card)-1)
+                rnd = 0
                 put_card = exist_card[rnd]
                 exist_card = [put_card - ix for ix in reversed(range(K))]
                 score = HandCardUtils.value_map(exist_card[-1], CardTypeEnum.CT_THREE, 9)
@@ -570,6 +584,7 @@ class Env(object):
                     print('Can not accept the card')
             else:
                 rnd = random.randint(0,len(exist_card)-1)
+                rnd = 0
                 put_card = exist_card[rnd]
                 exist_card = [put_card - ix for ix in reversed(range(K))]
                 score = HandCardUtils.value_map(exist_card[-1], CardTypeEnum.CT_THREE, 9)
@@ -597,6 +612,7 @@ class Env(object):
                     print('Can not accept the card')
             else:
                 rnd = random.randint(0,len(exist_card)-1)
+                rnd = 0
                 put_card = exist_card[rnd]
                 exist_card = [put_card - ix for ix in reversed(range(K))]
                 score = HandCardUtils.value_map(exist_card[-1], CardTypeEnum.CT_THREE, 9)
@@ -624,6 +640,7 @@ class Env(object):
                     print('Can not accept the card')
             else:
                 rnd = random.randint(0,len(exist_card)-1)
+                rnd = 0
                 put_card = exist_card[rnd]
                 exist_card = [put_card - ix for ix in reversed(range(K))]
                 score = HandCardUtils.value_map(exist_card[-1], CardTypeEnum.CT_THREE, 9)
@@ -651,6 +668,7 @@ class Env(object):
                     print('Can not accept the card')
             else:
                 rnd = random.randint(0,len(exist_card)-1)
+                rnd = 0
                 put_card = exist_card[rnd]
                 exist_card = [put_card - ix for ix in reversed(range(K))]
                 other_card = list(map(lambda x:x[0], 
@@ -664,6 +682,7 @@ class Env(object):
                     tmp = list()
                     for _ in range(K):
                         rnd = random.randint(0,len(other_card)-1)
+                        rnd = 0
                         tmp_card = other_card[rnd]
                         tmp.append(tmp_card)
                         self.observation[tmp_card] -= 1
@@ -696,6 +715,7 @@ class Env(object):
                     print('Can not accept the card')
             else:
                 rnd = random.randint(0,len(exist_card)-1)
+                rnd = 0
                 put_card = exist_card[rnd]
                 exist_card = [put_card - ix for ix in reversed(range(K))]
                 other_card = list(map(lambda x:x[0], 
@@ -709,6 +729,7 @@ class Env(object):
                     tmp = list()
                     for _ in range(K):
                         rnd = random.randint(0,len(other_card)-1)
+                        rnd = 0
                         tmp_card = other_card[rnd]
                         tmp.append(tmp_card)
                         self.observation[tmp_card] -= 1
@@ -741,6 +762,7 @@ class Env(object):
                     print('Can not accept the card')
             else:
                 rnd = random.randint(0,len(exist_card)-1)
+                rnd = 0
                 put_card = exist_card[rnd]
                 exist_card = [put_card - ix for ix in reversed(range(K))]
                 other_card = list(map(lambda x:x[0], 
@@ -754,6 +776,7 @@ class Env(object):
                     tmp = list()
                     for _ in range(K):
                         rnd = random.randint(0,len(other_card)-1)
+                        rnd = 0
                         tmp_card = other_card[rnd]
                         tmp.append(tmp_card)
                         self.observation[tmp_card] -= 1
@@ -786,6 +809,7 @@ class Env(object):
                     print('Can not accept the card')
             else:
                 rnd = random.randint(0,len(exist_card)-1)
+                rnd = 0
                 put_card = exist_card[rnd]
                 exist_card = [put_card - ix for ix in reversed(range(K))]
                 other_card = list(map(lambda x:x[0], 
@@ -799,6 +823,7 @@ class Env(object):
                     tmp = list()
                     for _ in range(K):
                         rnd = random.randint(0,len(other_card)-1)
+                        rnd = 0
                         tmp_card = other_card[rnd]
                         tmp.append(tmp_card)
                         self.observation[tmp_card] -= 1
@@ -831,6 +856,7 @@ class Env(object):
                     print('Can not accept the card')
             else:
                 rnd = random.randint(0,len(exist_card)-1)
+                rnd = 0
                 put_card = exist_card[rnd]
                 exist_card = [put_card - ix for ix in reversed(range(K))]
                 other_card = list(map(lambda x:x[0], 
@@ -844,6 +870,7 @@ class Env(object):
                     tmp = list()
                     for _ in range(K):
                         rnd = random.randint(0,len(other_card)-1)
+                        rnd = 0
                         tmp_card = other_card[rnd]
                         tmp.extend([tmp_card,tmp_card])
                         self.observation[tmp_card] -= 2
@@ -876,6 +903,7 @@ class Env(object):
                     print('Can not accept the card')
             else:
                 rnd = random.randint(0,len(exist_card)-1)
+                rnd = 0
                 put_card = exist_card[rnd]
                 exist_card = [put_card - ix for ix in reversed(range(K))]
                 other_card = list(map(lambda x:x[0], 
@@ -889,6 +917,7 @@ class Env(object):
                     tmp = list()
                     for _ in range(K):
                         rnd = random.randint(0,len(other_card)-1)
+                        rnd = 0
                         tmp_card = other_card[rnd]
                         tmp.extend([tmp_card,tmp_card])
                         self.observation[tmp_card] -= 2
@@ -921,6 +950,7 @@ class Env(object):
                     print('Can not accept the card')
             else:
                 rnd = random.randint(0,len(exist_card)-1)
+                rnd = 0
                 put_card = exist_card[rnd]
                 exist_card = [put_card - ix for ix in reversed(range(K))]
                 other_card = list(map(lambda x:x[0], 
@@ -934,6 +964,7 @@ class Env(object):
                     tmp = list()
                     for _ in range(K):
                         rnd = random.randint(0,len(other_card)-1)
+                        rnd = 0
                         tmp_card = other_card[rnd]
                         tmp.extend([tmp_card,tmp_card])
                         self.observation[tmp_card] -= 2
@@ -967,6 +998,7 @@ class Env(object):
                     print('Can not accept the card')
             else:
                 rnd = random.randint(0,len(exist_card)-1)
+                rnd = 0
                 put_card = exist_card[rnd]
                 other_exist_card = list(map(lambda x:x[0], 
                     filter(lambda x: x[1] >= 1 and x[0] != put_card, enumerate(self.hand_card_status))))
@@ -1020,6 +1052,7 @@ class Env(object):
                     print('Can not accept the card')
             else:
                 rnd = random.randint(0,len(exist_card)-1)
+                rnd = 0
                 put_card = exist_card[rnd]
                 other_exist_card = list(map(lambda x:x[0], 
                     filter(lambda x: x[1] >= 2 and x[0] != put_card, enumerate(self.hand_card_status))))
@@ -1072,6 +1105,7 @@ class Env(object):
                     print('Can not accept the card')
             else:
                 rnd = random.randint(0,len(exist_card)-1)
+                rnd = 0
                 put_card = exist_card[rnd]
                 exist_card = [put_card - ix for ix in reversed(range(K))]
                 score = HandCardUtils.value_map(exist_card[-1], CardTypeEnum.CT_CONTINUE, K)
@@ -1100,6 +1134,7 @@ class Env(object):
                     print('Can not accept the card')
             else:
                 rnd = random.randint(0,len(exist_card)-1)
+                rnd = 0
                 put_card = exist_card[rnd]
                 exist_card = [put_card - ix for ix in reversed(range(K))]
                 score = HandCardUtils.value_map(exist_card[-1], CardTypeEnum.CT_CONTINUE, K)
@@ -1128,6 +1163,7 @@ class Env(object):
                     print('Can not accept the card')
             else:
                 rnd = random.randint(0,len(exist_card)-1)
+                rnd = 0
                 put_card = exist_card[rnd]
                 exist_card = [put_card - ix for ix in reversed(range(K))]
                 score = HandCardUtils.value_map(exist_card[-1], CardTypeEnum.CT_CONTINUE, K)
@@ -1155,6 +1191,7 @@ class Env(object):
                     print('Can not accept the card')
             else:
                 rnd = random.randint(0,len(exist_card)-1)
+                rnd = 0
                 put_card = exist_card[rnd]
                 exist_card = [put_card - ix for ix in reversed(range(K))]
                 score = HandCardUtils.value_map(exist_card[-1], CardTypeEnum.CT_CONTINUE, K)
@@ -1182,6 +1219,7 @@ class Env(object):
                     print('Can not accept the card')
             else:
                 rnd = random.randint(0,len(exist_card)-1)
+                rnd = 0
                 put_card = exist_card[rnd]
                 exist_card = [put_card - ix for ix in reversed(range(K))]
                 score = HandCardUtils.value_map(exist_card[-1], CardTypeEnum.CT_CONTINUE, K)
@@ -1209,6 +1247,7 @@ class Env(object):
                     print('Can not accept the card')
             else:
                 rnd = random.randint(0,len(exist_card)-1)
+                rnd = 0
                 put_card = exist_card[rnd]
                 exist_card = [put_card - ix for ix in reversed(range(K))]
                 score = HandCardUtils.value_map(exist_card[-1], CardTypeEnum.CT_CONTINUE, K)
@@ -1236,6 +1275,7 @@ class Env(object):
                     print('Can not accept the card')
             else:
                 rnd = random.randint(0,len(exist_card)-1)
+                rnd = 0
                 put_card = exist_card[rnd]
                 exist_card = [put_card - ix for ix in reversed(range(K))]
                 score = HandCardUtils.value_map(exist_card[-1], CardTypeEnum.CT_CONTINUE, K)
@@ -1263,6 +1303,7 @@ class Env(object):
                     print('Can not accept the card')
             else:
                 rnd = random.randint(0,len(exist_card)-1)
+                rnd = 0
                 put_card = exist_card[rnd]
                 exist_card = [put_card - ix for ix in reversed(range(K))]
                 score = HandCardUtils.value_map(exist_card[-1], CardTypeEnum.CT_CONTINUE, K)

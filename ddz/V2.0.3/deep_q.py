@@ -27,7 +27,7 @@ class AgentCore(object):
     """
     def __init__(self, n_input, n_output, n_hidden=50, discount_rate=0.99, learning_rate=0.001, n_epoch=100,
                 batch_size=20, min_grad = 0.1, max_grad = 1, n_action = config.N_ACTION, window = 2,
-                max_sample_pool = 100000, tau = 0.001):
+                max_sample_pool = 1000, tau = 0.001):
         self.n_input = n_input
         self.n_output = n_output
         self.n_hidden = n_hidden
@@ -149,8 +149,8 @@ class AgentCore(object):
                         break
                     env.restore()
             # reward decay of up_agent
-            if last_action and action not in [ActionTypeEnum.ACTION_NO_PUT.value, ActionTypeEnum.ACTION_PUT_BOMB.value]:
-                rs_u[-1] -= 0.1
+            #if last_action and action not in [ActionTypeEnum.ACTION_NO_PUT.value, ActionTypeEnum.ACTION_PUT_BOMB.value]:
+            #    rs_u[-1] -= 0.1
             if action != ActionTypeEnum.ACTION_NO_PUT.value:
                 curr_flag = 'o'
                 last_action = action

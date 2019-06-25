@@ -164,14 +164,22 @@ class HandCardUtils(object):
                 if HandCardUtils.is_find(find_two):
                     cts.primary_item = find_two[-1]
                     size = len(find_two)
-                    if size == 2:
-                        cts.card_type = ActionTypeEnum.ACTION_PUT_2_DOU.value
-                    elif size == 3:
-                        cts.card_type = ActionTypeEnum.ACTION_PUT_2_DOU.value
+                    if size == 3:
+                        cts.card_type = ActionTypeEnum.ACTION_PUT_3_DOU.value
                     elif size == 4:
-                        cts.card_type = ActionTypeEnum.ACTION_PUT_2_DOU.value
+                        cts.card_type = ActionTypeEnum.ACTION_PUT_4_DOU.value
                     elif size == 5:
-                        cts.card_type = ActionTypeEnum.ACTION_PUT_2_DOU.value
+                        cts.card_type = ActionTypeEnum.ACTION_PUT_5_DOU.value
+                    elif size == 6:
+                        cts.card_type = ActionTypeEnum.ACTION_PUT_6_DOU.value
+                    elif size == 7:
+                        cts.card_type = ActionTypeEnum.ACTION_PUT_7_DOU.value
+                    elif size == 8:
+                        cts.card_type = ActionTypeEnum.ACTION_PUT_8_DOU.value
+                    elif size == 9:
+                        cts.card_type = ActionTypeEnum.ACTION_PUT_9_DOU.value
+                    elif size == 10:
+                        cts.card_type = ActionTypeEnum.ACTION_PUT_10_DOU.value
                     return True, cts
         #三带一单(连三带一单)
         if card_count % 4 == 0 and card_count > 0 and len(find_three) >= 1:
@@ -188,6 +196,10 @@ class HandCardUtils(object):
                         cts.card_type == ActionTypeEnum.ACTION_PUT_2_THREE_ONE.value
                     elif size == 3:
                         cts.card_type == ActionTypeEnum.ACTION_PUT_3_THREE_ONE.value
+                    elif size == 4:
+                        cts.card_type == ActionTypeEnum.ACTION_PUT_4_THREE_ONE.value
+                    elif size == 5:
+                        cts.card_type == ActionTypeEnum.ACTION_PUT_5_THREE_ONE.value
                     return True, cts
         #三带一对(连三带一对)
         if card_count % 5 == 0 and card_count > 0 and len(find_three) >= 1:
@@ -204,6 +216,8 @@ class HandCardUtils(object):
                         cts.card_type == ActionTypeEnum.ACTION_PUT_2_THREE_DOU.value
                     elif size == 3:
                         cts.card_type == ActionTypeEnum.ACTION_PUT_3_THREE_DOU.value
+                    elif size == 4:
+                        cts.card_type == ActionTypeEnum.ACTION_PUT_4_THREE_DOU.value
                     return True, cts
         # 连子
         if card_count >= 5:
@@ -260,6 +274,12 @@ class HandCardUtils(object):
                         cts.card_type = ActionTypeEnum.ACTION_PUT_2_THREE.value
                     elif size == 3:
                         cts.card_type = ActionTypeEnum.ACTION_PUT_3_THREE.value
+                    elif size == 4:
+                        cts.card_type = ActionTypeEnum.ACTION_PUT_4_THREE.value
+                    elif size == 5:
+                        cts.card_type = ActionTypeEnum.ACTION_PUT_5_THREE.value
+                    elif size == 6:
+                        cts.card_type = ActionTypeEnum.ACTION_PUT_6_THREE.value
                     return True, cts
         # 炸弹(王炸)
         if card_count == 2:
@@ -392,6 +412,56 @@ class HandCardUtils(object):
                     exist_card = [exist_card]
             if len(exist_card) == 0:
                 return False
+        # 六连对
+        elif action == ActionTypeEnum.ACTION_PUT_6_DOU.value:
+            K = 6
+            exist_card = HandCardUtils.find_even_pair(hand_card_status, k=K)
+            if primary_item is not None:
+                exist_card = list(filter(lambda x:x > primary_item,exist_card))
+                if isinstance(exist_card, int):
+                    exist_card = [exist_card]
+            if len(exist_card) == 0:
+                return False
+        # 七连对
+        elif action == ActionTypeEnum.ACTION_PUT_7_DOU.value:
+            K = 7
+            exist_card = HandCardUtils.find_even_pair(hand_card_status, k=K)
+            if primary_item is not None:
+                exist_card = list(filter(lambda x:x > primary_item,exist_card))
+                if isinstance(exist_card, int):
+                    exist_card = [exist_card]
+            if len(exist_card) == 0:
+                return False
+        # 八连对
+        elif action == ActionTypeEnum.ACTION_PUT_8_DOU.value:
+            K = 8
+            exist_card = HandCardUtils.find_even_pair(hand_card_status, k=K)
+            if primary_item is not None:
+                exist_card = list(filter(lambda x:x > primary_item,exist_card))
+                if isinstance(exist_card, int):
+                    exist_card = [exist_card]
+            if len(exist_card) == 0:
+                return False
+        # 九连对
+        elif action == ActionTypeEnum.ACTION_PUT_9_DOU.value:
+            K = 9
+            exist_card = HandCardUtils.find_even_pair(hand_card_status, k=K)
+            if primary_item is not None:
+                exist_card = list(filter(lambda x:x > primary_item,exist_card))
+                if isinstance(exist_card, int):
+                    exist_card = [exist_card]
+            if len(exist_card) == 0:
+                return False
+        # 十连对
+        elif action == ActionTypeEnum.ACTION_PUT_10_DOU.value:
+            K = 10
+            exist_card = HandCardUtils.find_even_pair(hand_card_status, k=K)
+            if primary_item is not None:
+                exist_card = list(filter(lambda x:x > primary_item,exist_card))
+                if isinstance(exist_card, int):
+                    exist_card = [exist_card]
+            if len(exist_card) == 0:
+                return False
         # 两连三不带
         elif action == ActionTypeEnum.ACTION_PUT_2_THREE.value:
             K = 2
@@ -405,6 +475,36 @@ class HandCardUtils(object):
         # 三连三不带
         elif action == ActionTypeEnum.ACTION_PUT_3_THREE.value:
             K = 3
+            exist_card = HandCardUtils.find_even_three(hand_card_status, k=K)
+            if primary_item is not None:
+                exist_card = list(filter(lambda x:x > primary_item,exist_card))
+                if isinstance(exist_card, int):
+                    exist_card = [exist_card]
+            if len(exist_card) == 0:
+                return False
+        # 四连三不带
+        elif action == ActionTypeEnum.ACTION_PUT_4_THREE.value:
+            K = 4
+            exist_card = HandCardUtils.find_even_three(hand_card_status, k=K)
+            if primary_item is not None:
+                exist_card = list(filter(lambda x:x > primary_item,exist_card))
+                if isinstance(exist_card, int):
+                    exist_card = [exist_card]
+            if len(exist_card) == 0:
+                return False
+        # 五连三不带
+        elif action == ActionTypeEnum.ACTION_PUT_5_THREE.value:
+            K = 5
+            exist_card = HandCardUtils.find_even_three(hand_card_status, k=K)
+            if primary_item is not None:
+                exist_card = list(filter(lambda x:x > primary_item,exist_card))
+                if isinstance(exist_card, int):
+                    exist_card = [exist_card]
+            if len(exist_card) == 0:
+                return False
+        # 六连三不带
+        elif action == ActionTypeEnum.ACTION_PUT_6_THREE.value:
+            K = 6
             exist_card = HandCardUtils.find_even_three(hand_card_status, k=K)
             if primary_item is not None:
                 exist_card = list(filter(lambda x:x > primary_item,exist_card))
@@ -448,6 +548,42 @@ class HandCardUtils(object):
                     filter(lambda x: x[0] not in exist_card, enumerate(hand_card_status))))
                 if len(other_card) < K:
                     return False
+        # 四连三带一
+        elif action == ActionTypeEnum.ACTION_PUT_4_THREE_ONE.value:
+            K = 4
+            exist_card = HandCardUtils.find_even_three(hand_card_status, k=K)
+            if primary_item is not None:
+                exist_card = list(filter(lambda x:x > primary_item,exist_card))
+                if isinstance(exist_card, int):
+                    exist_card = [exist_card]
+            if len(exist_card) == 0:
+                return False
+            else:
+                rnd = random.randint(0,len(exist_card)-1)
+                put_card = exist_card[rnd]
+                exist_card = [put_card - ix for ix in reversed(range(K))]
+                other_card = list(map(lambda x:x[0], 
+                    filter(lambda x: x[0] not in exist_card, enumerate(hand_card_status))))
+                if len(other_card) < K:
+                    return False
+        # 五连三带一
+        elif action == ActionTypeEnum.ACTION_PUT_5_THREE_ONE.value:
+            K = 5
+            exist_card = HandCardUtils.find_even_three(hand_card_status, k=K)
+            if primary_item is not None:
+                exist_card = list(filter(lambda x:x > primary_item,exist_card))
+                if isinstance(exist_card, int):
+                    exist_card = [exist_card]
+            if len(exist_card) == 0:
+                return False
+            else:
+                rnd = random.randint(0,len(exist_card)-1)
+                put_card = exist_card[rnd]
+                exist_card = [put_card - ix for ix in reversed(range(K))]
+                other_card = list(map(lambda x:x[0], 
+                    filter(lambda x: x[0] not in exist_card, enumerate(hand_card_status))))
+                if len(other_card) < K:
+                    return False
         # 两连三带一对
         elif action == ActionTypeEnum.ACTION_PUT_2_THREE_DOU.value:
             K = 2
@@ -469,6 +605,24 @@ class HandCardUtils(object):
         # 三连三带一对
         elif action == ActionTypeEnum.ACTION_PUT_3_THREE_DOU.value:
             K = 3
+            exist_card = HandCardUtils.find_even_three(hand_card_status, k=K)
+            if primary_item is not None:
+                exist_card = list(filter(lambda x:x > primary_item,exist_card))
+                if isinstance(exist_card, int):
+                    exist_card = [exist_card]
+            if len(exist_card) == 0:
+                return False
+            else:
+                rnd = random.randint(0,len(exist_card)-1)
+                put_card = exist_card[rnd]
+                exist_card = [put_card - ix for ix in reversed(range(K))]
+                other_card = list(map(lambda x:x[0], 
+                    filter(lambda x: x[0] not in exist_card and x[1] == 2, enumerate(hand_card_status))))
+                if len(other_card) < K:
+                    return False
+        # 四连三带一对
+        elif action == ActionTypeEnum.ACTION_PUT_4_THREE_DOU.value:
+            K = 4
             exist_card = HandCardUtils.find_even_three(hand_card_status, k=K)
             if primary_item is not None:
                 exist_card = list(filter(lambda x:x > primary_item,exist_card))

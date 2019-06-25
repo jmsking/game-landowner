@@ -1,0 +1,27 @@
+本代码思想源于论文：
+    1. A SOLUTION TO CHINA COMPETITIVE POKER USING DEEP LEARNING
+        https://pdfs.semanticscholar.org/2511/a0fc4d6f133bc2ba529f7301740dea4e925c.pdf
+    2. Human-level control through Deep Reinforcement Learning
+        https://storage.googleapis.com/deepmind-media/dqn/DQNNaturePaper.pdf
+
+系统共三个模块：
+1. Bid Module: 游戏开始阶段叫分模块
+2. Deep-Q Network: Deep Q Value Function Net
+3. Auxiliary Network: 稳定taget Value的Auxi Net
+
+I. Bid Module
+目前基于规则实现叫分
+
+II. Deep-Q Network
+    1. Net Structure: 4-layer MLP
+    2. Activation Func: Sigmoid
+    3. Output Layer: Softmax Layer
+    4. Input Shape: Put Card Status(15) + [Main Action(309)*5 + Kicker Action(28)]
+    5. Output Shape: scalar
+
+III. Auxi Network
+    1. Net Structure: 4-layer MLP
+    2. Activation Func: Sigmoid
+    3. Output Layer: Softmax Layer
+    4. Input Shape: Put Card Status(15) + [Main Action(309)*5 + Kicker Action(28)]
+    5. Output Shape: scalar
