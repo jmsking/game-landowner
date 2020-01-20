@@ -1,2 +1,5 @@
 
-ddz/V2.0.3/__pycache__/*
+ddz/*/__pycache__/*
+ddz/*/.vscode/*
+ddz/.vscode/*
+ddz/models/*

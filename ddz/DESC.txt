@@ -11,7 +11,3 @@
 后期完成多智能体强化模型后，会采用增量学习的方式，使得模型产生的策略逐步趋优
 
 
-
-/anaconda3/bin/python /Users/Greason/Documents/workspace_github_company/game-landowner/ddz/V2.0.3/game_main.py
-
-
